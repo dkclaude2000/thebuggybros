@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Buggy Bros — Field Notes</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
   :root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7}
@@ -12,7 +13,8 @@
 
   /* top bar */
   .bar{display:flex;align-items:center;gap:16px;margin-bottom:6px}
-  .brand{font-weight:700;font-size:1.2rem;margin-right:auto}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.2rem;margin-right:auto}
+  .brand svg{height:36px;width:auto;flex:none}
   .brand b{color:var(--teal)}
   .ig{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;color:#04120d;background:var(--teal);
     padding:8px 13px;border-radius:99px;font-weight:600}
@@ -57,7 +59,7 @@
 <body>
 <div class="wrap">
   <div class="bar">
-    <div class="brand">The Buggy <b>Bros</b></div>
+    <div class="brand"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/><g stroke="#0d1218" stroke-width="1.5" opacity=".45"><path d="M33 21 h34 M33 26 h34"/></g><path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="#0e151b" stroke="#38cba7" stroke-width="5"/><g transform="translate(50,59) scale(0.40) translate(-50,-48)"><g stroke="#38cba7" stroke-width="4" stroke-linecap="round"><path d="M30 48 L14 40"/><path d="M30 60 L12 60"/><path d="M30 72 L16 82"/><path d="M70 48 L86 40"/><path d="M70 60 L88 60"/><path d="M70 72 L84 82"/></g><path d="M44 20 C40 12 37 10 32 8 M56 20 C60 12 63 10 68 8" stroke="#f4b53f" stroke-width="2.6" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="58" rx="20" ry="26" fill="#38cba7"/><ellipse cx="50" cy="36" rx="12" ry="10" fill="#f4b53f"/><circle cx="50" cy="24" r="7" fill="#f4b53f"/><line x1="50" y1="36" x2="50" y2="82" stroke="#0e151b" stroke-width="2.6"/></g></svg><span>The Buggy <b>Bros</b></span></div>
     <a class="ig" href="https://www.instagram.com/thebuggybros/" target="_blank">Follow @thebuggybros</a>
   </div>
   <div class="tagline">Field Notes</div>
