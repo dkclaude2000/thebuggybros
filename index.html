@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0d1218"/>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   :root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7;--dk:#0e151b}
   *{margin:0;box-sizing:border-box}
@@ -33,7 +34,13 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%2338cba7' stroke-width='2'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 
   .stage{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px;justify-items:center;margin-top:6px}
-  .cardslot{cursor:pointer;width:300px;max-width:100%}
+  .cardslot{cursor:pointer;width:300px;max-width:100%;position:relative}
+  .dlbtn{position:absolute;top:9px;right:9px;z-index:6;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:rgba(9,14,20,.78);color:var(--ink);font-size:1.05rem;line-height:1;display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .16s,border-color .16s,color .16s}
+  .cardslot:hover .dlbtn,.dlbtn:focus-visible{opacity:1}
+  .dlbtn:hover{border-color:var(--teal);color:var(--teal)}
+  .dlbtn.busy{opacity:1;pointer-events:none;color:var(--teal)}
+  .actions .save{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--teal);background:none;border:0;cursor:pointer;padding:0}
+  .actions .save:hover{text-decoration:underline}
   .empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mut)}
   .empty h3{font-size:1.3rem;color:var(--ink);margin-bottom:8px}.empty a{color:var(--teal);font-family:"IBM Plex Mono",monospace;font-size:.72rem}
   img{display:block}
@@ -280,7 +287,7 @@ const hero = c => c.stats[1];
 
 function fieldFront(c){
   return `<div class="face front">
-    <div class="photo">${pic(c)}<span class="chip"><svg><use href="#jar"/></svg></span>${c.dl?`<a class="dl" href="${c.dl}" download onclick="event.stopPropagation()" title="Save card image">⤓</a>`:''}</div>
+    <div class="photo">${pic(c)}<span class="chip"><svg><use href="#jar"/></svg></span></div>
     <div class="body"><div class="b-head"><span class="b-name">${c.name}</span><span class="rar">◆ ${c.rarity}</span></div>
       <div class="b-sci">${c.sci}</div><div class="one">${c.one}</div>
       <div class="stats">${c.stats.map(fstat).join('')}</div>
@@ -301,7 +308,7 @@ const STYLES = {
  field:{label:'Field Card', fn:c=>`<div class="flip"><div class="flip-inner">${fieldFront(c)}${backHTML(c)}</div></div>`},
  mini:{label:'Minimal', fn:c=>`<div class="mini"><div class="ph">${pic(c)}${chipEl}</div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
  poke:{label:'Trading Card', fn:c=>{const h=hero(c);return `<div class="poke"><div class="poke-in"><div class="poke-top"><span class="pn">${c.name}</span><span class="hp"><small>${(h[2]||'').toUpperCase().slice(0,3)}</small>${h[0]}</span></div><div class="poke-win">${pic(c)}${c.photo?'<span class="holo"></span>':''}${chipEl}<span class="type">✦ ${c.type}</span></div><div class="poke-sub">${c.sci} · ${STATE_NAME[c.state]}</div><div class="poke-move"><b>✦ ${c.callout[0]}</b><p>${c.one}</p></div><div class="poke-foot"><span>@thebuggybros · ${c.id} · ${c.state}</span><span class="rar">◆ ${c.rarity}</span></div></div></div>`}},
- hud:{label:'HUD', fn:c=>{const h=hero(c);return `<div class="hud"><div class="hud-ph">${pic(c)}${chipEl}<span class="cx tr"></span><span class="cx bl"></span><span class="cx br"></span><span class="ovr"><b>${h[0]}</b><small>${(h[1]||h[2]||'').toString().toUpperCase().trim()}</small></span></div><div class="hud-b"><div class="hud-nm">${c.name}<span>${c.sci}</span></div><div class="hud-tag">${c.type} · ◆ ${c.rarity}</div><div class="hchips">${c.stats.map(s=>`<div class="hchip"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`).join('')}</div></div>${bfoot(c)}</div>`}},
+ hud:{label:'HUD', fn:c=>{return `<div class="hud"><div class="hud-ph">${pic(c)}${chipEl}<span class="cx tr"></span><span class="cx bl"></span><span class="cx br"></span></div><div class="hud-b"><div class="hud-nm">${c.name}<span>${c.sci}</span></div><div class="hud-tag">${c.type} · ◆ ${c.rarity}</div><div class="hchips">${c.stats.map(s=>`<div class="hchip"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`).join('')}</div></div>${bfoot(c)}</div>`}},
  anim:{label:'Animated', fn:c=>`<div class="anim"><div class="anim-stage">${chipEl}<svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
  multi:{label:'Multi-photo', fn:c=>`<div class="multi"><div class="main">${pic(c)}${chipEl}<div class="inset"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg><span class="lbl">+ illustration</span></div></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
  pola:{label:'Snapshot', fn:c=>`<div class="pola"><span class="tape"></span><div class="ph">${pic(c)}${chipEl}</div><div class="cap">${c.name}<small>${c.sci.toUpperCase()} · ${c.id} · ${c.state}</small></div><div class="stamp"><span>${c.stats[0][0]}${c.stats[0][1]||''}</span><span>·</span><span><b>${hero(c)[0]}${hero(c)[1]||''}</b></span><span>·</span><span>${c.rarity}</span></div><div class="polahdl">@thebuggybros</div></div>`}
@@ -321,7 +328,58 @@ function grid(){
   const stage=document.getElementById('stage');
   const list = geo==='All'?DATA:DATA.filter(c=>c.state===geo);
   if(!list.length){ stage.innerHTML=`<div class="empty"><h3>Nothing logged in ${STATE_NAME[geo]||geo} yet.</h3><p><a href="${(STATE_NAME[geo]||geo).toLowerCase()}.html">See the checklist →</a></p></div>`; return; }
-  stage.innerHTML = list.map(c=>`<div class="cardslot" data-i="${DATA.indexOf(c)}">${STYLES[style].fn(c)}</div>`).join('');
+  stage.innerHTML = list.map(c=>`<div class="cardslot" data-i="${DATA.indexOf(c)}">${STYLES[style].fn(c)}<button class="dlbtn" title="Download card image">⤓</button></div>`).join('');
+}
+
+// ---- client-side card → PNG (works for every style + creature) ----
+const SVGNS='http://www.w3.org/2000/svg';
+function inlineUses(root){
+  root.querySelectorAll('use').forEach(u=>{
+    const href=(u.getAttribute('href')||u.getAttribute('xlink:href')||'').trim();
+    if(!href.startsWith('#'))return;
+    const sym=document.querySelector(href);
+    if(!sym)return;
+    const svg=u.ownerSVGElement||u.closest('svg');
+    if(svg&&sym.getAttribute('viewBox')&&!svg.getAttribute('viewBox'))svg.setAttribute('viewBox',sym.getAttribute('viewBox'));
+    const g=document.createElementNS(SVGNS,'g');
+    Array.from(sym.childNodes).forEach(n=>g.appendChild(n.cloneNode(true)));
+    u.replaceWith(g);
+  });
+}
+async function captureCard(node,c){
+  if(typeof html2canvas!=='function'){alert('Download tool is still loading — give it a second and try again.');return;}
+  const w=node.offsetWidth;
+  const clone=node.cloneNode(true);
+  clone.style.margin='0';clone.style.width=w+'px';
+  if(clone.classList.contains('flip')){clone.style.perspective='none';const fi=clone.querySelector('.flip-inner');if(fi){fi.style.transform='none';fi.style.transition='none';}const bk=clone.querySelector('.back');if(bk)bk.style.display='none';}
+  clone.querySelectorAll('.pola').forEach(p=>p.style.transform='none');
+  if(clone.classList.contains('pola'))clone.style.transform='none';
+  clone.querySelectorAll('.dlbtn').forEach(b=>b.remove());
+  inlineUses(clone);
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;left:-10000px;top:0;padding:38px;background:#0d1218';
+  box.appendChild(clone);document.body.appendChild(box);
+  try{
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const canvas=await html2canvas(box,{scale:2,backgroundColor:'#0d1218',useCORS:true,logging:false});
+    const a=document.createElement('a');
+    a.download=`thebuggybros-${c.id}-${style}.png`;
+    a.href=canvas.toDataURL('image/png');a.click();
+  }catch(err){console.error(err);alert('Sorry — could not generate the image. Try again.');}
+  box.remove();
+}
+async function downloadCard(i,btn){
+  const slot=document.querySelector(`.cardslot[data-i="${i}"]`);
+  if(!slot)return;
+  const node=slot.firstElementChild;
+  if(btn){btn.classList.add('busy');btn.textContent='…';}
+  await captureCard(node,DATA[i]);
+  if(btn){btn.classList.remove('busy');btn.textContent='⤓';}
+}
+function downloadFromDetail(){
+  const i=+document.getElementById('modal').dataset.i;
+  const node=document.querySelector('#detail .left').firstElementChild;
+  if(node)captureCard(node,DATA[i]);
 }
 function openDetail(i){
   const c=DATA[i], d=document.getElementById('detail');
@@ -333,7 +391,7 @@ function openDetail(i){
     <div class="facts">${c.facts.map(f=>`<div><div class="k">${f[0]}</div><div class="v">${f[1]}</div></div>`).join('')}</div>
     <div class="callout"><div class="ct">◷ ${c.callout[0]}</div><div class="cv">${c.callout[1]}</div></div>
     <div class="actions">${c.reel?`<a href="${c.reel}" target="_blank">▸ watch the catch</a>`:`<span style="font-family:'IBM Plex Mono';font-size:.72rem;color:#5f6f78">on our page</span>`}
-      ${c.dl?`<a href="${c.dl}" download>⤓ save card</a>`:''}
+      <button class="save" onclick="downloadFromDetail()">⤓ save card</button>
       <div class="nav"><button onclick="step(-1)">‹ Prev</button><button onclick="step(1)">Next ›</button></div></div></div>`;
   document.getElementById('modal').classList.add('open');
   document.getElementById('modal').dataset.i=i;
@@ -342,7 +400,12 @@ function step(n){const i=(+document.getElementById('modal').dataset.i+n+DATA.len
 function closeDetail(){document.getElementById('modal').classList.remove('open');}
 document.getElementById('geo').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;geo=b.dataset.g;controls();grid();});
 document.getElementById('style').addEventListener('change',e=>{style=e.target.value;localStorage.setItem('bb-card-style',style);grid();});
-document.getElementById('stage').addEventListener('click',e=>{if(e.target.closest('a'))return;const s=e.target.closest('.cardslot');if(s)openDetail(+s.dataset.i);});
+document.getElementById('stage').addEventListener('click',e=>{
+  const dl=e.target.closest('.dlbtn');
+  if(dl){e.stopPropagation();const s=dl.closest('.cardslot');if(s)downloadCard(+s.dataset.i,dl);return;}
+  if(e.target.closest('a'))return;
+  const s=e.target.closest('.cardslot');if(s)openDetail(+s.dataset.i);
+});
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeDetail();});
 document.addEventListener('keydown',e=>{if(!document.getElementById('modal').classList.contains('open'))return;if(e.key==='Escape')closeDetail();if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1);});
 controls(); grid();
