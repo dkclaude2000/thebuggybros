@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>The Buggy Bros — Michigan Field Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7}
+  *{margin:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;padding:52px 24px 90px;
+    background-image:radial-gradient(70% 40% at 50% 0%,rgba(56,203,167,.05),transparent 60%)}
+  .wrap{max-width:1000px;margin:0 auto}
+  .head{margin-bottom:26px}
+  .head .tag{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--teal)}
+  .head h1{font-size:2.2rem;font-weight:700;margin:6px 0 16px}
+  .prog{display:flex;align-items:center;gap:14px}
+  .prog .bar{flex:1;height:10px;border-radius:99px;background:#0e151b;border:1px solid var(--line);overflow:hidden}
+  .prog .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:99px}
+  .prog .n{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);white-space:nowrap}
+  .prog .n b{color:var(--teal)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:26px}
+  .tile{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);cursor:default}
+  .tile .art{aspect-ratio:1/1;position:relative;display:grid;place-items:center;overflow:hidden;background:#0e151b}
+  .tile .art svg{width:62%;height:62%}
+  .tile .art img{width:100%;height:100%;object-fit:cover;object-position:58% 42%}
+  .tile .lab{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:9px 11px}
+  .tile .lab .nm{font-size:.86rem;font-weight:600;line-height:1.1}
+  .tile .lab .no{font-family:"IBM Plex Mono",monospace;font-size:.56rem;color:var(--mut)}
+
+  /* caught */
+  .tile.on .art{background:radial-gradient(70% 70% at 50% 45%,rgba(244,181,63,.12),transparent 70%)}
+  .tile.on .art svg{color:var(--amber);filter:drop-shadow(0 0 12px rgba(244,181,63,.25))}
+  .tile.on .check{position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:50%;background:var(--teal);color:#04120d;
+    display:grid;place-items:center;font-size:.7rem;font-weight:700;z-index:2}
+  .tile.on{border-color:#3a4a3a}
+
+  /* locked */
+  .tile.off{border-style:dashed;opacity:.72}
+  .tile.off .art{background:#0d141a}
+  .tile.off .art .dot{width:34px;height:34px;border-radius:50%;border:2px dashed #33424c}
+  .tile.off .lab .nm{color:var(--mut);font-weight:500}
+  .foot{margin-top:28px;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--mut);text-align:center}
+  a.back{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--teal);text-decoration:none}
+  .tile.on{cursor:pointer;transition:transform .15s}
+  .tile.on:hover{transform:translateY(-3px);border-color:var(--teal)}
+  /* detail modal */
+  .modal{position:fixed;inset:0;z-index:80;background:rgba(6,10,14,.72);backdrop-filter:blur(4px);display:none;
+    align-items:center;justify-content:center;padding:24px}
+  .modal.open{display:flex}
+  .sheet{width:360px;max-width:100%;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 30px 70px rgba(0,0,0,.5);animation:pop .22s ease}
+  @keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+  .sheet .photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#0b1116;display:grid;place-items:center}
+  .sheet .photo img{width:100%;height:100%;object-fit:cover}
+  .sheet .photo svg{width:58%;height:58%;color:var(--amber);filter:drop-shadow(0 0 16px rgba(244,181,63,.24))}
+  .sheet .caught{position:absolute;top:12px;left:12px;font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.14em;
+    text-transform:uppercase;background:var(--teal);color:#04120d;padding:4px 9px;border-radius:99px;font-weight:600}
+  .sheet .x{position:absolute;top:10px;right:12px;color:#dfe8ea;background:rgba(0,0,0,.4);border:0;width:28px;height:28px;border-radius:50%;
+    font-size:1rem;cursor:pointer;backdrop-filter:blur(4px)}
+  .sheet .b{padding:18px 20px 18px}
+  .sheet .nm{font-size:1.35rem;font-weight:700}
+  .sheet .sci{font-style:italic;color:var(--mut);font-size:.85rem;margin-top:2px}
+  .sheet .one{color:#c4cdd3;font-size:.9rem;margin-top:10px;line-height:1.4}
+  .sheet .stats{display:flex;gap:8px;margin-top:16px}
+  .sheet .stat{flex:1;text-align:center;background:#0e151b;border:1px solid var(--line);border-radius:11px;padding:11px 5px}
+  .sheet .stat .v{font-size:1.05rem;font-weight:600;line-height:1.05}
+  .sheet .stat .v small{font-size:.6rem;color:var(--mut);font-weight:400}
+  .sheet .stat .k{font-family:"IBM Plex Mono",monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:6px}
+  .sheet .foot2{margin-top:15px;display:flex;justify-content:space-between;align-items:center}
+  .sheet .watch{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--teal);text-decoration:none}
+  .sheet .more{font-family:"IBM Plex Mono",monospace;font-size:.6rem;color:#4f5f68}
+  .proto{position:fixed;top:12px;right:-52px;transform:rotate(45deg);background:var(--teal);color:#04120d;
+    font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.2em;padding:6px 58px;z-index:50;text-transform:uppercase}
+</style></head>
+<body>
+<div class="proto">Draft</div>
+<div class="wrap">
+  <a class="back" href="index.html">← field notes</a>
+  <div class="head">
+    <p class="tag">The Buggy Bros · Field Log</p>
+    <h1>Michigan</h1>
+    <div class="prog"><div class="bar"><i id="pbar"></i></div><span class="n"><b id="pn">8</b> / <span id="pd">50</span> caught</span></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="foot">// caught slots fill with your real photos · locked slots are the checklist of what's still out there</div>
+</div>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<script>
+const SVG = {
+ bee:`<g fill="currentColor"><ellipse cx="60" cy="60" rx="16" ry="19"/><circle cx="60" cy="38" r="9"/><circle cx="60" cy="24" r="8"/></g><g fill="#0e151b"><path d="M45 54 h30 v4 h-30 z"/><path d="M47 64 h26 v4 h-26 z"/><path d="M50 74 h20 v4 h-20 z"/></g><ellipse cx="83" cy="46" rx="17" ry="8" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1.4" transform="rotate(26 83 46)"/><ellipse cx="37" cy="46" rx="17" ry="8" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1.4" transform="rotate(-26 37 46)"/><path d="M56 17 C52 8 48 6 44 4 M64 17 C68 8 72 6 76 4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+ grass:`<ellipse cx="52" cy="48" rx="24" ry="11" fill="currentColor"/><circle cx="28" cy="44" r="9" fill="currentColor"/><path d="M22 40 C14 30 12 26 8 22 M25 38 C19 30 17 26 15 20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M62 54 L84 38 L80 66" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M80 66 L96 80" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M44 58 L40 74"/><path d="M54 58 L54 76"/></g>`,
+ ant:`<g fill="currentColor"><ellipse cx="86" cy="48" rx="18" ry="15"/><circle cx="60" cy="48" r="10"/><circle cx="34" cy="48" r="14"/></g><path d="M24 40 C16 28 12 24 6 18 M28 38 C22 26 20 22 16 14" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M58 44 L50 26"/><path d="M62 46 L64 26"/><path d="M66 46 L78 28"/><path d="M58 54 L50 72"/><path d="M62 56 L64 76"/><path d="M66 54 L78 72"/></g>`,
+ snail:`<path d="M12 64 C12 54 26 52 40 54 L72 54" stroke="currentColor" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="76" cy="44" r="22" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="76" cy="44" r="12" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="76" cy="44" r="3" fill="currentColor"/><path d="M16 52 L12 40 M24 52 L24 38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>`,
+ daddy:`<circle cx="60" cy="46" r="7" fill="currentColor"/><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 44 C30 20 18 18 6 24"/><path d="M55 46 C28 34 16 36 4 44"/><path d="M55 49 C30 52 16 60 8 74"/><path d="M56 51 C40 66 34 76 30 86"/><path d="M65 44 C90 20 102 18 114 24"/><path d="M65 46 C92 34 104 36 116 44"/><path d="M65 49 C90 52 104 60 112 74"/><path d="M64 51 C80 66 86 76 90 86"/></g>`,
+ robber:`<ellipse cx="60" cy="60" rx="8" ry="22" fill="currentColor"/><ellipse cx="60" cy="34" rx="12" ry="10" fill="currentColor"/><circle cx="55" cy="31" r="4" fill="#0e151b"/><circle cx="65" cy="31" r="4" fill="#0e151b"/><path d="M60 24 C58 18 56 16 54 14 M60 24 C62 18 64 16 66 14" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/><ellipse cx="80" cy="52" rx="20" ry="7" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="1.2" transform="rotate(22 80 52)"/><ellipse cx="40" cy="52" rx="20" ry="7" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="1.2" transform="rotate(-22 40 52)"/><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M52 44 L36 54"/><path d="M52 52 L34 64"/><path d="M68 44 L84 54"/><path d="M68 52 L86 64"/></g>`,
+ worm:`<path d="M16 42 C34 24 46 56 62 42 C78 28 90 58 104 44" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"/><g stroke="#0e151b" stroke-width="2" opacity=".7"><path d="M32 34 l-3 8 M46 44 l3 8 M62 42 l-2 8 M78 34 l3 8"/></g><circle cx="104" cy="44" r="2.4" fill="#0e151b"/>`
+};
+// 50 Michigan creature-type slots. state: photo | svg key | null(locked)
+const SLOTS = [
+ {n:1,name:'Dragonfly',photo:'photos/dragonfly.jpg'},
+ {n:2,name:'Damselfly'},
+ {n:3,name:'Monarch Butterfly'},
+ {n:4,name:'Swallowtail'},
+ {n:5,name:'Luna Moth'},
+ {n:6,name:'Honey Bee',svg:'bee'},
+ {n:7,name:'Bumble Bee'},
+ {n:8,name:'Yellowjacket'},
+ {n:9,name:'Bald-faced Hornet'},
+ {n:10,name:'Robber Fly',photo:'photos/robberfly.jpg',pos:'50% 45%'},
+ {name:'House Fly',photo:'photos/fly.jpg',pos:'54% 46%'},
+ {n:11,name:'Mosquito'},
+ {n:12,name:'Firefly'},
+ {n:13,name:'Green Lacewing'},
+ {n:14,name:'Mayfly'},
+ {n:15,name:'Cicada'},
+ {n:16,name:'Grasshopper',svg:'grass'},
+ {n:17,name:'Field Cricket'},
+ {n:18,name:'Katydid'},
+ {n:19,name:'Praying Mantis'},
+ {n:20,name:'Ant',svg:'ant'},
+ {n:21,name:'Ground Beetle'},
+ {n:22,name:'Ladybug'},
+ {n:23,name:'June Beetle'},
+ {n:24,name:'Japanese Beetle'},
+ {n:25,name:'Stag Beetle'},
+ {n:26,name:'Click Beetle'},
+ {n:27,name:'Leafhopper'},
+ {n:28,name:'Stink Bug'},
+ {n:29,name:'Boxelder Bug'},
+ {n:30,name:'Water Strider'},
+ {n:31,name:'Cockroach'},
+ {n:32,name:'Earwig'},
+ {n:33,name:'Silverfish'},
+ {n:34,name:'Walking Stick'},
+ {n:35,name:'Woolly Bear'},
+ {n:36,name:'Aphid'},
+ {n:37,name:'Springtail'},
+ {n:38,name:'Pillbug'},
+ {n:39,name:'Millipede'},
+ {n:40,name:'Centipede'},
+ {n:41,name:'Slug'},
+ {n:42,name:'Grove Snail',svg:'snail'},
+ {n:43,name:'Orb-weaver Spider',photo:'photos/spider.jpg',pos:'60% 40%'},
+ {n:44,name:'Wolf Spider'},
+ {n:45,name:'Jumping Spider'},
+ {n:46,name:'Daddy Longlegs',svg:'daddy'},
+ {n:47,name:'Wood Tick'},
+ {n:48,name:'Earthworm',svg:'worm'},
+ {n:49,name:'Leech'},
+ {n:50,name:'Crayfish'}
+];
+const caught = SLOTS.filter(s=>s.photo||s.svg).length;
+document.getElementById('pn').textContent = caught;
+document.getElementById('pd').textContent = SLOTS.length;
+document.getElementById('pbar').style.width = (caught/SLOTS.length*100)+'%';
+document.getElementById('grid').innerHTML = SLOTS.map((s,i)=>{
+  const on = s.photo||s.svg;
+  const art = s.photo ? `<img src="${s.photo}" alt="${s.name}" style="object-position:${s.pos||'58% 42%'}"/>`
+            : s.svg ? `<svg viewBox="0 0 120 90">${SVG[s.svg]}</svg>`
+            : `<span class="dot"></span>`;
+  return `<div class="tile ${on?'on':'off'}" ${on?`data-i="${i}"`:''}><div class="art">${on?'<span class="check">✓</span>':''}${art}</div>
+    <div class="lab"><span class="nm">${s.name}</span><span class="no">${String(i+1).padStart(2,'0')}</span></div></div>`;
+}).join('');
+
+// per-creature detail (shown when a caught tile is clicked)
+const DETAIL = {
+ 'Dragonfly':{sci:'Common Green Darner · Anax junius',one:'One of the fastest insects alive — and it can fly backward and hover.',stats:[['8',' cm','Size'],['30',' mph','Top speed'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/DaqDM9JOhbv/'},
+ 'Honey Bee':{sci:'Apis mellifera',one:'The insect the entire sting-pain scale is measured against — the anchor at 2.',stats:[['14',' mm','Size'],['2',' / 4','Sting pain'],['Common',null,'How often']],reel:null},
+ 'Robber Fly':{sci:'Asilidae',one:'The assassin fly — snatches other insects out of the air and drains them dry.',stats:[['20',' mm','Size'],['Midair',null,'Ambush kills'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/Daq655tOS7F/'},
+ 'House Fly':{sci:'Muscidae',one:'A drain-loving generalist — it tastes with its feet and sees in nearly every direction.',stats:[['7',' mm','Size'],['360','°','Vision'],['Common',null,'How often']],reel:null},
+ 'Grasshopper':{sci:'Caelifera',one:'Launches itself about twenty times its own body length in a single hop.',stats:[['40',' mm','Size'],['20','×','Jump / body len'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/DaqE9EGuulf/'},
+ 'Ant':{sci:'Formicidae',one:'Hauls up to fifty times its own body weight — its neck can bear five thousand.',stats:[['5',' mm','Size'],['50','×','Lifts / body wt'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/DaoqEALOXf1/'},
+ 'Grove Snail':{sci:'Cepaea nemoralis',one:'Glides along on a ribbon of mucus at a blistering three-hundredths of a mile an hour.',stats:[['25',' mm','Size'],['0.03',' mph','Top speed'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/DaoqEALOXf1/'},
+ 'Orb-weaver Spider':{sci:'Araneidae',one:'Spins a fresh geometric web most nights, then recycles the old silk by eating it.',stats:[['12',' mm','Size'],['Nightly',null,'Web rebuild'],['Common',null,'How often']],reel:null},
+ 'Daddy Longlegs':{sci:'Opiliones',one:'Despite the playground legend, it has no venom and no fangs. Totally harmless.',stats:[['5',' cm','Size'],['None',null,'Venom'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/DaoqEALOXf1/'},
+ 'Earthworm':{sci:'Lumbricina',one:"Darwin's favorite animal — it quietly rebuilds the soil beneath your feet.",stats:[['10',' cm','Size'],['Engineer',null,'Soil builder'],['Common',null,'How often']],reel:'https://www.instagram.com/reel/DaoqEALOXf1/'}
+};
+const modal=document.getElementById('modal'), sheet=document.getElementById('sheet');
+function openDetail(i){
+  const s=SLOTS[i], d=DETAIL[s.name]||{sci:'',one:'Details coming soon.',stats:[['—',null,'Size'],['—',null,'Superpower'],['—',null,'How often']],reel:null};
+  const art = s.photo?`<img src="${s.photo}" style="object-position:${s.pos||'58% 42%'}"/>`:`<svg viewBox="0 0 120 90">${SVG[s.svg]}</svg>`;
+  sheet.innerHTML=`<div class="photo">${art}<span class="caught">✓ Caught · Michigan</span><button class="x" onclick="closeDetail()">✕</button></div>
+   <div class="b"><div class="nm">${s.name}</div><div class="sci">${d.sci}</div><div class="one">${d.one}</div>
+   <div class="stats">${d.stats.map(x=>`<div class="stat"><div class="v">${x[0]}${x[1]?`<small>${x[1]}</small>`:''}</div><div class="k">${x[2]}</div></div>`).join('')}</div>
+   <div class="foot2">${d.reel?`<a class="watch" href="${d.reel}" target="_blank">▸ watch the catch</a>`:`<span class="more">on our page</span>`}<span class="more">＋ deeper data</span></div></div>`;
+  modal.classList.add('open');
+}
+function closeDetail(){modal.classList.remove('open');}
+document.getElementById('grid').addEventListener('click',e=>{const t=e.target.closest('.tile.on');if(t)openDetail(+t.dataset.i);});
+modal.addEventListener('click',e=>{if(e.target===modal)closeDetail();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
+</script>
+</body></html>

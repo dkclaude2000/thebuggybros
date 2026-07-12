@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>The Buggy Bros — Tennessee Field Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7}
+  *{margin:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;padding:52px 24px 90px;
+    background-image:radial-gradient(70% 40% at 50% 0%,rgba(56,203,167,.05),transparent 60%)}
+  .wrap{max-width:1000px;margin:0 auto}
+  a.back{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--teal);text-decoration:none}
+  .head{margin:14px 0 26px}
+  .head .tag{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--teal)}
+  .head h1{font-size:2.2rem;font-weight:700;margin:6px 0 16px}
+  .prog{display:flex;align-items:center;gap:14px}
+  .prog .bar{flex:1;height:10px;border-radius:99px;background:#0e151b;border:1px solid var(--line);overflow:hidden}
+  .prog .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));border-radius:99px}
+  .prog .n{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);white-space:nowrap}
+  .prog .n b{color:var(--teal)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:26px}
+  .tile{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+  .tile .art{aspect-ratio:1/1;display:grid;place-items:center;background:#0d141a}
+  .tile.off{border-style:dashed;opacity:.72}
+  .tile.off .art .dot{width:34px;height:34px;border-radius:50%;border:2px dashed #33424c;display:block}
+  .tile .lab{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:9px 11px}
+  .tile .lab .nm{font-size:.86rem;font-weight:500;line-height:1.1;color:var(--mut)}
+  .tile .lab .no{font-family:"IBM Plex Mono",monospace;font-size:.56rem;color:var(--mut)}
+  .note{margin-top:22px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--mut)}
+  .proto{position:fixed;top:12px;right:-52px;transform:rotate(45deg);background:var(--teal);color:#04120d;
+    font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.2em;padding:6px 58px;z-index:50;text-transform:uppercase}
+</style></head>
+<body>
+<div class="proto">Draft</div>
+<div class="wrap">
+  <a class="back" href="index.html">← field notes</a>
+  <div class="head">
+    <p class="tag">The Buggy Bros · Field Log</p>
+    <h1>Tennessee</h1>
+    <div class="prog"><div class="bar"><i id="pbar"></i></div><span class="n"><b id="pn">0</b> / <span id="pd">50</span> caught</span></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="note">// the next frontier — every one of these is waiting to be caught</div>
+</div>
+<script>
+const SLOTS = ['Dragonfly','Damselfly','Monarch Butterfly','Tiger Swallowtail','Luna Moth','Honey Bee','Bumble Bee','Paper Wasp','Bald-faced Hornet','Yellowjacket','Robber Fly','House Fly','Mosquito','Firefly','Dobsonfly','Annual Cicada','Green Lacewing','Grasshopper','Field Cricket','Katydid','Praying Mantis','Carpenter Ant','Fire Ant','Ground Beetle','Ladybug','June Beetle','Japanese Beetle','Stag Beetle','Bess Beetle','Leafhopper','Wheel Bug','Assassin Bug','Stink Bug','Water Strider','American Cockroach','Earwig','Walking Stick','Woolly Bear','Millipede','Centipede','Slug','Grove Snail','Orb-weaver Spider','Wolf Spider','Jumping Spider','Black Widow','Brown Recluse','Daddy Longlegs','Wood Tick','Crayfish'];
+document.getElementById('pd').textContent = SLOTS.length;
+document.getElementById('pbar').style.width = '0%';
+document.getElementById('grid').innerHTML = SLOTS.map((name,i)=>`
+  <div class="tile off"><div class="art"><span class="dot"></span></div>
+    <div class="lab"><span class="nm">${name}</span><span class="no">${String(i+1).padStart(2,'0')}</span></div></div>`).join('');
+</script>
+</body></html>
