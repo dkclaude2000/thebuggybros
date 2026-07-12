@@ -39,8 +39,6 @@
   img{display:block}
   .drawn{width:100%;height:100%;display:grid;place-items:center;background:radial-gradient(70% 80% at 50% 35%,rgba(56,203,167,.14),transparent 70%),#0e151b}
   .drawn svg{width:56%;height:56%;color:var(--amber);filter:drop-shadow(0 0 12px rgba(244,181,63,.22))}
-<<<<<<< HEAD
-=======
   /* shared branding across ALL styles */
   .brandchip{position:absolute;top:10px;left:10px;z-index:4;width:30px;height:30px;border-radius:8px;border:1.5px solid var(--teal);background:rgba(9,14,20,.72);display:grid;place-items:center}
   .brandchip svg{width:76%;height:76%}
@@ -49,7 +47,6 @@
   .brandfoot{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-top:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:.56rem;letter-spacing:.04em}
   .brandfoot .h{color:var(--teal)}.brandfoot .i{color:var(--mut)}
   .pola .polahdl{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.06em;color:#4a5a44;margin:1px 0 3px}
->>>>>>> ef51ef1 (Carry branding (logo chip · @thebuggybros · BB-### · state · rarity) onto all 7 card styles)
 
   /* ===== FIELD CARD (default) + flip ===== */
   .flip{width:300px;aspect-ratio:5/7;perspective:1300px}
@@ -106,11 +103,7 @@
   .poke-win{position:relative;aspect-ratio:1.25/1;border:3px solid #d9b25a;border-radius:6px;overflow:hidden;background:#000}.poke-win img{width:100%;height:100%;object-fit:cover}
   .poke-win .holo{position:absolute;inset:0;background:linear-gradient(115deg,transparent 34%,rgba(255,255,255,.22) 46%,rgba(56,203,167,.2) 52%,transparent 66%);background-size:260% 260%;mix-blend-mode:screen;animation:holo 3.6s linear infinite;pointer-events:none}
   @keyframes holo{0%{background-position:0 0}100%{background-position:260% 260%}}
-<<<<<<< HEAD
-  .poke-win .type{position:absolute;top:7px;left:7px;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.1em;background:rgba(0,0,0,.55);color:var(--teal);padding:3px 7px;border-radius:99px}
-=======
   .poke-win .type{position:absolute;top:7px;right:7px;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.1em;background:rgba(0,0,0,.55);color:var(--teal);padding:3px 7px;border-radius:99px}
->>>>>>> ef51ef1 (Carry branding (logo chip · @thebuggybros · BB-### · state · rarity) onto all 7 card styles)
   .poke-sub{font-family:"IBM Plex Mono",monospace;font-size:.55rem;color:var(--mut);text-align:center;margin:7px 0}
   .poke-move{background:rgba(56,203,167,.06);border:1px solid var(--line);border-radius:8px;padding:9px 11px}.poke-move b{font-size:.9rem;color:var(--amber)}.poke-move p{font-size:.77rem;color:#c4cdd3;line-height:1.35;margin-top:3px}
   .poke-foot{display:flex;justify-content:space-between;margin-top:9px;font-family:"IBM Plex Mono",monospace;font-size:.58rem;color:var(--mut)}.poke-foot .rar{color:var(--teal)}
@@ -301,16 +294,6 @@ function backHTML(c){
     <div class="callout"><div class="ct">◷ ${c.callout[0]}</div><div class="cv">${c.callout[1]}</div></div>
     <div class="bfoot"><span class="hdl">@thebuggybros</span><span class="w">thebuggybros.com</span></div></div></div>`;
 }
-<<<<<<< HEAD
-const STYLES = {
- field:{label:'Field Card', fn:c=>`<div class="flip"><div class="flip-inner">${fieldFront(c)}${backHTML(c)}</div></div>`},
- mini:{label:'Minimal', fn:c=>`<div class="mini"><div class="ph">${pic(c)}<span class="reg">${STATE_NAME[c.state]}</span></div><div class="b"><div class="nm">${c.name}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div></div>`},
- poke:{label:'Trading Card', fn:c=>{const h=hero(c);return `<div class="poke"><div class="poke-in"><div class="poke-top"><span class="pn">${c.name}</span><span class="hp"><small>${(h[2]||'').toUpperCase().slice(0,3)}</small>${h[0]}</span></div><div class="poke-win">${pic(c)}${c.photo?'<span class="holo"></span>':''}<span class="type">✦ ${c.type}</span></div><div class="poke-sub">${c.sci} · ${STATE_NAME[c.state]}</div><div class="poke-move"><b>✦ ${c.callout[0]}</b><p>${c.one}</p></div><div class="poke-foot"><span>${c.id} · SIZE ${c.stats[0][0]}${c.stats[0][1]||''}</span><span class="rar">◆ ${c.rarity}</span></div></div></div>`}},
- hud:{label:'HUD', fn:c=>{const h=hero(c);return `<div class="hud"><div class="hud-ph">${pic(c)}<span class="cx tl"></span><span class="cx tr"></span><span class="cx bl"></span><span class="cx br"></span><span class="ovr"><b>${h[0]}</b><small>${(h[1]||h[2]||'').toString().toUpperCase().trim()}</small></span></div><div class="hud-b"><div class="hud-nm">${c.name}<span>${c.sci}</span></div><div class="hud-tag">Class · ${c.type} · ${c.id}</div><div class="hchips">${c.stats.map(s=>`<div class="hchip"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`).join('')}</div></div></div>`}},
- anim:{label:'Animated', fn:c=>`<div class="anim"><div class="anim-stage"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div><div class="b"><div class="nm">${c.name}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div></div>`},
- multi:{label:'Multi-photo', fn:c=>`<div class="multi"><div class="main">${pic(c)}<div class="inset"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg><span class="lbl">+ illustration</span></div></div><div class="b"><div class="nm">${c.name}</div><div class="sci">${c.sci}</div><div class="r3">${c.stats.map(st).join('')}</div></div></div>`},
- pola:{label:'Snapshot', fn:c=>`<div class="pola"><span class="tape"></span><div class="ph">${pic(c)}</div><div class="cap">${c.name}<small>${c.sci.toUpperCase()} · ${c.id}</small></div><div class="stamp"><span>${c.stats[0][0]}${c.stats[0][1]||''}</span><span>·</span><span><b>${hero(c)[0]}${hero(c)[1]||''}</b></span><span>·</span><span>${c.rarity}</span></div></div>`}
-=======
 const chipEl = `<span class="brandchip"><svg><use href="#jar"/></svg></span>`;
 const bfoot = c => `<div class="brandfoot"><span class="h">@thebuggybros</span><span class="i">${c.id} · ${c.state}</span></div>`;
 const rar = c => `<span class="rarpill">◆ ${c.rarity}</span>`;
@@ -322,7 +305,6 @@ const STYLES = {
  anim:{label:'Animated', fn:c=>`<div class="anim"><div class="anim-stage">${chipEl}<svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
  multi:{label:'Multi-photo', fn:c=>`<div class="multi"><div class="main">${pic(c)}${chipEl}<div class="inset"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg><span class="lbl">+ illustration</span></div></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
  pola:{label:'Snapshot', fn:c=>`<div class="pola"><span class="tape"></span><div class="ph">${pic(c)}${chipEl}</div><div class="cap">${c.name}<small>${c.sci.toUpperCase()} · ${c.id} · ${c.state}</small></div><div class="stamp"><span>${c.stats[0][0]}${c.stats[0][1]||''}</span><span>·</span><span><b>${hero(c)[0]}${hero(c)[1]||''}</b></span><span>·</span><span>${c.rarity}</span></div><div class="polahdl">@thebuggybros</div></div>`}
->>>>>>> ef51ef1 (Carry branding (logo chip · @thebuggybros · BB-### · state · rarity) onto all 7 card styles)
 };
 
 let style = localStorage.getItem('bb-card-style') || 'field';
