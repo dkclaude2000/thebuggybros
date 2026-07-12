@@ -48,6 +48,8 @@
   .front .photo img{width:100%;height:100%;object-fit:cover}
   .front .chip{position:absolute;top:11px;left:11px;z-index:3;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--teal);background:rgba(9,14,20,.72);display:grid;place-items:center}
   .front .chip svg{width:76%;height:76%}
+  .front .dl{position:absolute;top:11px;right:11px;z-index:3;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:rgba(9,14,20,.6);display:grid;place-items:center;color:var(--ink);font-size:.95rem;text-decoration:none;line-height:1}
+  .front .dl:hover{border-color:var(--teal);color:var(--teal)}
   .front .body{position:absolute;left:0;right:0;bottom:0;top:50%;padding:13px 15px 12px;display:flex;flex-direction:column}
   .front .b-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .front .b-name{font-size:1.4rem;font-weight:700;line-height:1;flex:1;min-width:0}
@@ -122,21 +124,21 @@ const DATA = [
   desc:"The common green darner is one of North America's largest, fastest dragonflies — and one of the few insects that migrates, some travelling hundreds of miles south each fall.",
   facts:[['Order','Odonata'],['Where','Ponds & meadows'],['Diet','Flying insects'],['Threat','Harmless']],
   callout:['Lifecycle','Spends 1–2 years underwater as a nymph, then emerges to fly for only a few weeks.'],
-  reel:'https://www.instagram.com/reel/DaqDM9JOhbv/'},
+  dl:'cards/ig/BB-001.png',reel:'https://www.instagram.com/reel/DaqDM9JOhbv/'},
  {id:'BB-002',name:'Robber Fly',sci:'Asilidae',svg:'robber',photo:'photos/robberfly.jpg',pos:'50% 45%',state:'MI',rarity:'Common',
   stats:[['20',' mm','Size'],['Midair',null,'Ambush'],['Hunter',null,'Type']],
   one:'The assassin fly — snatches other insects out of the air and drains them dry.',
   desc:"Robber flies are aggressive aerial predators. They perch, lock onto prey, and ambush it in flight — some taking insects larger than themselves.",
   facts:[['Order','Diptera'],['Where','Open sunny ground'],['Diet','Other insects'],['Threat','Bites if handled']],
   callout:['Hunting','Injects saliva that paralyzes and liquefies its prey from the inside, then drinks it dry.'],
-  reel:'https://www.instagram.com/reel/Daq655tOS7F/'},
+  dl:'cards/ig/BB-002.png',reel:'https://www.instagram.com/reel/Daq655tOS7F/'},
  {id:'BB-003',name:'Orb-weaver',sci:'Araneidae',svg:'spider',photo:'photos/spider.jpg',pos:'60% 40%',state:'MI',rarity:'Common',
   stats:[['12',' mm','Size'],['Nightly',null,'Web'],['Weaver',null,'Type']],
   one:'Spins a fresh geometric web most nights, then recycles the old silk by eating it.',
   desc:"Orb-weavers build the classic wheel-shaped web, rebuilding it most nights. They're shy and their venom is harmless to people.",
   facts:[['Order','Araneae'],['Where','Gardens & eaves'],['Diet','Flying insects'],['Threat','Harmless']],
   callout:['The Web','Eats its old web each night to recycle the silk protein, then spins a brand-new one.'],
-  reel:null},
+  dl:'cards/ig/BB-003.png',reel:null},
  {id:'BB-004',name:'Honey Bee',sci:'Apis mellifera',svg:'bee',photo:null,state:'MI',rarity:'Common',
   stats:[['14',' mm','Size'],['2',' / 4','Sting'],['Pollinator',null,'Type']],
   one:'The insect the entire sting-pain scale is measured against — the anchor at 2.',
@@ -187,7 +189,7 @@ const stat = s => `<div class="stat"><div class="v">${s[0]}${s[1]?`<small>${s[1]
 
 function frontHTML(c){
   return `<div class="face front">
-    <div class="photo">${pic(c)}<span class="chip"><svg><use href="#jar"/></svg></span></div>
+    <div class="photo">${pic(c)}<span class="chip"><svg><use href="#jar"/></svg></span>${c.dl?`<a class="dl" href="${c.dl}" download onclick="event.stopPropagation()" title="Save card image">⤓</a>`:''}</div>
     <div class="body">
       <div class="b-head"><span class="b-name">${c.name}</span><span class="rar">◆ ${c.rarity}</span></div>
       <div class="b-sci">${c.sci}</div>

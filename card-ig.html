@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7;--dk:#0e151b}
+  *{margin:0;box-sizing:border-box}
+  body{width:1080px;height:1080px;overflow:hidden;background:#0d1218;color:var(--ink);font-family:"Space Grotesk",sans-serif;
+    display:grid;place-items:center;position:relative;
+    background-image:radial-gradient(60% 50% at 50% 30%,rgba(56,203,167,.10),transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 4px)}
+  .top{position:absolute;top:54px;left:0;right:0;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:20px;letter-spacing:.3em;text-transform:uppercase;color:var(--teal)}
+  .bot{position:absolute;bottom:54px;left:0;right:0;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:20px;letter-spacing:.14em;color:var(--mut)}
+  .bot b{color:var(--ink)}
+  .scale{transform:scale(2.18)}
+  img{display:block}
+  .drawn{width:100%;height:100%;display:grid;place-items:center;background:radial-gradient(70% 80% at 50% 35%,rgba(56,203,167,.14),transparent 70%),#0e151b}
+  .drawn svg{width:56%;height:56%;color:var(--amber);filter:drop-shadow(0 0 12px rgba(244,181,63,.22))}
+  .front{width:300px;aspect-ratio:5/7;position:relative;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:0 16px 36px rgba(0,0,0,.5)}
+  .front .photo{position:absolute;top:0;left:0;right:0;height:50%;overflow:hidden}.front .photo img{width:100%;height:100%;object-fit:cover}
+  .front .chip{position:absolute;top:11px;left:11px;z-index:3;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--teal);background:rgba(9,14,20,.72);display:grid;place-items:center}.front .chip svg{width:76%;height:76%}
+  .front .body{position:absolute;left:0;right:0;bottom:0;top:50%;padding:13px 15px 12px;display:flex;flex-direction:column}
+  .front .b-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .front .b-name{font-size:1.4rem;font-weight:700;line-height:1;flex:1;min-width:0}
+  .front .rar{flex:none;font-family:"IBM Plex Mono",monospace;font-size:.5rem;letter-spacing:.06em;color:var(--teal);border:1px solid var(--teal);border-radius:99px;padding:3px 7px}
+  .front .b-sci{font-style:italic;color:var(--mut);font-size:.8rem;margin-top:2px}
+  .front .one{color:#c4cdd3;font-size:.83rem;line-height:1.38;margin-top:9px}
+  .front .stats{display:flex;gap:7px;margin-top:auto}
+  .front .stat{flex:1;text-align:center;background:var(--dk);border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+  .front .stat .v{font-size:.98rem;font-weight:700;color:var(--amber)}.front .stat .v small{font-size:.55rem;color:var(--mut);font-weight:400}
+  .front .stat .k{font-family:"IBM Plex Mono",monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-top:5px}
+  .front .foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.04em}
+  .front .foot .hdl{color:var(--teal)}.front .foot .idn{color:var(--mut)}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="jar" viewBox="0 0 100 100"><rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/><path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="none" stroke="#38cba7" stroke-width="5"/><g transform="translate(50,59) scale(0.4) translate(-50,-48)"><g stroke="#38cba7" stroke-width="4" stroke-linecap="round"><path d="M30 48 L14 40"/><path d="M30 60 L12 60"/><path d="M30 72 L16 82"/><path d="M70 48 L86 40"/><path d="M70 60 L88 60"/><path d="M70 72 L84 82"/></g><path d="M44 20 C40 12 37 10 32 8 M56 20 C60 12 63 10 68 8" stroke="#f4b53f" stroke-width="2.6" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="58" rx="20" ry="26" fill="#38cba7"/><ellipse cx="50" cy="36" rx="12" ry="10" fill="#f4b53f"/><circle cx="50" cy="24" r="7" fill="#f4b53f"/></g></symbol>
+<symbol id="dragon" viewBox="0 0 120 90"><rect x="57" y="28" width="6" height="54" rx="3" fill="currentColor"/><circle cx="60" cy="24" r="9" fill="currentColor"/><ellipse cx="30" cy="33" rx="27" ry="7" fill="currentColor" opacity=".9" transform="rotate(-13 30 33)"/><ellipse cx="90" cy="33" rx="27" ry="7" fill="currentColor" opacity=".9" transform="rotate(13 90 33)"/><ellipse cx="32" cy="47" rx="25" ry="6" fill="currentColor" opacity=".7" transform="rotate(10 32 47)"/><ellipse cx="88" cy="47" rx="25" ry="6" fill="currentColor" opacity=".7" transform="rotate(-10 88 47)"/></symbol>
+<symbol id="robber" viewBox="0 0 120 90"><ellipse cx="60" cy="60" rx="8" ry="22" fill="currentColor"/><ellipse cx="60" cy="34" rx="12" ry="10" fill="currentColor"/><circle cx="55" cy="31" r="4" fill="#0e151b"/><circle cx="65" cy="31" r="4" fill="#0e151b"/><ellipse cx="80" cy="52" rx="20" ry="7" fill="currentColor" opacity=".28" transform="rotate(22 80 52)"/><ellipse cx="40" cy="52" rx="20" ry="7" fill="currentColor" opacity=".28" transform="rotate(-22 40 52)"/><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M52 44 L36 54"/><path d="M52 52 L34 64"/><path d="M68 44 L84 54"/><path d="M68 52 L86 64"/></g></symbol>
+<symbol id="spider" viewBox="0 0 120 90"><g fill="currentColor"><ellipse cx="60" cy="56" rx="15" ry="19"/><circle cx="60" cy="36" r="10"/></g><g stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"><path d="M46 48 C30 42 22 32 14 22"/><path d="M46 56 C26 54 16 48 8 42"/><path d="M46 64 C28 68 18 76 10 86"/><path d="M74 48 C90 42 98 32 106 22"/><path d="M74 56 C94 54 104 48 112 42"/><path d="M74 64 C92 68 102 76 110 86"/></g></symbol>
+</svg>
+<div class="top">The Buggy Bros · Field Card</div>
+<div class="scale"><div id="card"></div></div>
+<div class="bot"><b>@thebuggybros</b> &nbsp;·&nbsp; thebuggybros.com</div>
+<script>
+const D={
+ 'BB-001':{name:'Dragonfly',sci:'Anax junius',photo:'photos/dragonfly.jpg',pos:'50% 45%',state:'MI',rarity:'Common',one:'One of the fastest insects alive — and it can fly backward and hover.',stats:[['8',' cm','Size'],['30',' mph','Top speed'],['Flyer',null,'Type']]},
+ 'BB-002':{name:'Robber Fly',sci:'Asilidae',photo:'photos/robberfly.jpg',pos:'50% 45%',state:'MI',rarity:'Common',one:'The assassin fly — snatches other insects out of the air and drains them dry.',stats:[['20',' mm','Size'],['Midair',null,'Ambush'],['Hunter',null,'Type']]},
+ 'BB-003':{name:'Orb-weaver',sci:'Araneidae',photo:'photos/spider.jpg',pos:'60% 40%',state:'MI',rarity:'Common',one:'Spins a fresh geometric web most nights, then recycles the old silk by eating it.',stats:[['12',' mm','Size'],['Nightly',null,'Web'],['Weaver',null,'Type']]}
+};
+const id=(location.hash||'#BB-001').slice(1);
+const c=D[id]||D['BB-001'];
+const pic=c=>c.photo?`<img src="${c.photo}" style="object-position:${c.pos}">`:`<div class="drawn"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div>`;
+const stat=s=>`<div class="stat"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`;
+document.getElementById('card').innerHTML=`<div class="front"><div class="photo">${pic(c)}<span class="chip"><svg><use href="#jar"/></svg></span></div><div class="body"><div class="b-head"><span class="b-name">${c.name}</span><span class="rar">◆ ${c.rarity}</span></div><div class="b-sci">${c.sci}</div><div class="one">${c.one}</div><div class="stats">${c.stats.map(stat).join('')}</div><div class="foot"><span class="hdl">@thebuggybros</span><span class="idn">${id} · ${c.state}</span></div></div></div>`;
+</script>
+</body></html>
