@@ -1,154 +1,100 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Buggy Bros — Field Notes</title>
+<meta name="description" content="The Buggy Bros — we catch and document creatures across Michigan & Tennessee. Collectible field cards."/>
+<meta property="og:title" content="The Buggy Bros — Field Cards"/>
+<meta property="og:description" content="Catch, name, and log every creature we find. A collectible field guide."/>
+<meta property="og:image" content="https://thebuggybros.com/cards/ig/BB-001.png"/>
+<meta property="og:url" content="https://thebuggybros.com/"/>
+<meta name="theme-color" content="#0d1218"/>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  :root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7}
+  :root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;--amber:#f4b53f;--teal:#38cba7;--dk:#0e151b}
   *{margin:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;padding:0 0 70px;
     background-image:radial-gradient(70% 30% at 50% 0%,rgba(56,203,167,.05),transparent 60%)}
   a{text-decoration:none;color:inherit}
   .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
-  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
   .bar{display:flex;align-items:center;gap:16px;padding:24px 0 6px}
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.2rem;margin-right:auto}
   .brand svg{height:36px;width:auto;flex:none}.brand b{color:var(--teal)}
   .ig{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;color:#04120d;background:var(--teal);padding:8px 13px;border-radius:99px;font-weight:600}
 
-  /* controls */
-  .controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:14px 0 22px}
-  .grp{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .grp .cap{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 0 22px}
   .pill{font-family:"Space Grotesk";font-size:.82rem;font-weight:600;color:var(--mut);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 13px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
   .pill .c{font-family:"IBM Plex Mono",monospace;font-size:.64rem}
-  .pill.on{color:#04120d;background:var(--teal);border-color:var(--teal)}
-  .pill.on .c{color:#04120d;opacity:.7}
-  .grp.styles .pill.on{background:var(--amber);border-color:var(--amber);color:#241a06}
-  .spacer{flex:1}
+  .pill.on{color:#04120d;background:var(--teal);border-color:var(--teal)}.pill.on .c{color:#04120d;opacity:.7}
+  .hint{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:#5f6f78;align-self:center}
 
-  /* grid */
-  .stage{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;justify-items:center;margin-top:6px}
-  .cardslot{cursor:pointer;transition:transform .15s;width:300px;max-width:100%}
-  .cardslot:hover{transform:translateY(-4px)}
+  .stage{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px;justify-items:center;margin-top:6px}
   .empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mut)}
   .empty h3{font-size:1.3rem;color:var(--ink);margin-bottom:8px}.empty a{color:var(--teal);font-family:"IBM Plex Mono",monospace;font-size:.72rem}
-
   img{display:block}
   .drawn{width:100%;height:100%;display:grid;place-items:center;background:radial-gradient(70% 80% at 50% 35%,rgba(56,203,167,.14),transparent 70%),#0e151b}
-  .drawn svg{width:62%;height:62%;color:var(--amber);filter:drop-shadow(0 0 12px rgba(244,181,63,.22))}
+  .drawn svg{width:56%;height:56%;color:var(--amber);filter:drop-shadow(0 0 12px rgba(244,181,63,.22))}
 
-  /* ---- style: MINIMAL ---- */
-  .mini{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-  .mini .ph{aspect-ratio:1/1;overflow:hidden;position:relative}.mini .ph img{width:100%;height:100%;object-fit:cover}
-  .mini .reg{position:absolute;top:11px;right:11px;font-family:"IBM Plex Mono",monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:#dfe8ea;background:rgba(0,0,0,.45);padding:4px 9px;border-radius:99px}
-  .mini .b{padding:16px 18px 15px}.mini .nm{font-size:1.3rem;font-weight:700}.mini .sci{font-style:italic;color:var(--mut);font-size:.82rem;margin-top:2px}
-  .mini .one{color:#c4cdd3;font-size:.86rem;margin-top:10px;line-height:1.4}
-  .row3{display:flex;gap:7px;margin-top:14px}.row3 .st{flex:1;text-align:center;background:#0e151b;border:1px solid var(--line);border-radius:10px;padding:10px 4px}
-  .row3 .st .v{font-size:.98rem;font-weight:600}.row3 .st .v small{font-size:.56rem;color:var(--mut);font-weight:400}
-  .row3 .st .k{font-family:"IBM Plex Mono",monospace;font-size:.46rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-top:5px}
-  .wl{margin-top:13px;font-family:"IBM Plex Mono",monospace;font-size:.63rem;color:var(--teal);display:block}
+  /* ---- flip card ---- */
+  .flip{width:300px;aspect-ratio:5/7;perspective:1300px;cursor:pointer}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+  .flip:hover .flip-inner,.flip.flipped .flip-inner{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 16px 36px rgba(0,0,0,.5)}
+  .face.back{transform:rotateY(180deg)}
 
-  /* ---- POKÉMON ---- */
-  .poke{border-radius:18px;padding:9px;background:linear-gradient(150deg,#f4b53f,#2ba88b 55%,#38cba7)}
-  .poke-in{background:linear-gradient(180deg,#17202b,#0f1620);border-radius:12px;padding:11px 12px 12px;border:2px solid rgba(0,0,0,.35)}
-  .poke-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-  .poke-top .pn{font-weight:700;font-size:1.12rem}.poke-top .hp{font-family:"IBM Plex Mono",monospace;color:var(--amber);font-weight:600;font-size:1.3rem;line-height:1}
-  .poke-top .hp small{font-size:.55rem;color:#c9a24a;margin-right:2px;vertical-align:3px}
-  .poke-win{position:relative;aspect-ratio:1.25/1;border:3px solid #d9b25a;border-radius:6px;overflow:hidden;background:#000}
-  .poke-win img{width:100%;height:100%;object-fit:cover}
-  .poke-win .holo{position:absolute;inset:0;background:linear-gradient(115deg,transparent 34%,rgba(255,255,255,.22) 46%,rgba(56,203,167,.2) 52%,transparent 66%);background-size:260% 260%;mix-blend-mode:screen;animation:holo 3.6s linear infinite;pointer-events:none}
-  @keyframes holo{0%{background-position:0 0}100%{background-position:260% 260%}}
-  .poke-win .type{position:absolute;top:7px;left:7px;font-family:"IBM Plex Mono",monospace;font-size:.54rem;letter-spacing:.1em;background:rgba(0,0,0,.55);color:var(--teal);padding:3px 7px;border-radius:99px}
-  .poke-sub{font-family:"IBM Plex Mono",monospace;font-size:.55rem;color:var(--mut);text-align:center;margin:7px 0}
-  .poke-move{background:rgba(56,203,167,.06);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
-  .poke-move b{font-size:.9rem;color:var(--amber)}.poke-move p{font-size:.77rem;color:#c4cdd3;line-height:1.35;margin-top:3px}
-  .poke-foot{display:flex;justify-content:space-between;margin-top:9px;font-family:"IBM Plex Mono",monospace;font-size:.58rem;color:var(--mut)}.poke-foot .rar{color:var(--teal)}
+  .front{background:var(--card)}
+  .front .photo{position:absolute;top:0;left:0;right:0;height:50%;overflow:hidden}
+  .front .photo img{width:100%;height:100%;object-fit:cover}
+  .front .chip{position:absolute;top:11px;left:11px;z-index:3;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--teal);background:rgba(9,14,20,.72);display:grid;place-items:center}
+  .front .chip svg{width:76%;height:76%}
+  .front .body{position:absolute;left:0;right:0;bottom:0;top:50%;padding:13px 15px 12px;display:flex;flex-direction:column}
+  .front .b-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .front .b-name{font-size:1.4rem;font-weight:700;line-height:1;flex:1;min-width:0}
+  .front .rar{flex:none;font-family:"IBM Plex Mono",monospace;font-size:.5rem;letter-spacing:.06em;color:var(--teal);border:1px solid var(--teal);border-radius:99px;padding:3px 7px}
+  .front .b-sci{font-style:italic;color:var(--mut);font-size:.8rem;margin-top:2px}
+  .front .one{color:#c4cdd3;font-size:.83rem;line-height:1.38;margin-top:9px}
+  .front .stats{display:flex;gap:7px;margin-top:auto}
+  .front .stat{flex:1;text-align:center;background:var(--dk);border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+  .front .stat .v{font-size:.98rem;font-weight:700;color:var(--amber)}.front .stat .v small{font-size:.55rem;color:var(--mut);font-weight:400}
+  .front .stat .k{font-family:"IBM Plex Mono",monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-top:5px}
+  .front .foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:.58rem;letter-spacing:.04em}
+  .front .foot .hdl{color:var(--teal)}.front .foot .idn{color:var(--mut)}
 
-  /* ---- HUD ---- */
-  .hud{background:linear-gradient(180deg,#10171f,#0c1218);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-  .hud-ph{position:relative;aspect-ratio:1.3/1;overflow:hidden}.hud-ph img{width:100%;height:100%;object-fit:cover}
-  .hud-ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,#0c1218)}
-  .cx{position:absolute;width:15px;height:15px;border:2px solid var(--teal);opacity:.8;z-index:2}
-  .cx.tl{top:9px;left:9px;border-right:0;border-bottom:0}.cx.tr{top:9px;right:9px;border-left:0;border-bottom:0}
-  .cx.bl{bottom:9px;left:9px;border-right:0;border-top:0}.cx.br{bottom:9px;right:9px;border-left:0;border-top:0}
-  .hud-ph .ovr{position:absolute;top:10px;right:30px;z-index:3;text-align:right;font-family:"IBM Plex Mono",monospace;color:var(--amber)}
-  .hud-ph .ovr b{font-size:1.9rem;font-weight:600;line-height:.9;display:block}.hud-ph .ovr small{font-size:.52rem;letter-spacing:.12em;color:#c9a24a}
-  .hud-b{padding:2px 16px 15px}.hud-nm{font-size:1.3rem;font-weight:700}.hud-nm span{font-style:italic;font-weight:400;font-size:.8rem;color:var(--mut);margin-left:6px}
-  .hud-tag{font-family:"IBM Plex Mono",monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin:6px 0 11px}
-  .hchips{display:flex;gap:7px}.hchip{flex:1;text-align:center;border:1px solid var(--line);border-radius:9px;padding:8px 3px;background:#0a1119}
-  .hchip .v{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.86rem}.hchip .v small{color:var(--mut);font-size:.52rem}
-  .hchip .k{font-family:"IBM Plex Mono",monospace;font-size:.44rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-top:4px}
-
-  /* ---- ANIMATED ---- */
-  .anim{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-  .anim-stage{aspect-ratio:1.3/1;display:grid;place-items:center;position:relative;overflow:hidden;background:radial-gradient(70% 90% at 50% 30%,rgba(56,203,167,.16),transparent 70%),#0e151b}
-  .anim-stage svg{width:62%;color:var(--amber);animation:bob 2.6s ease-in-out infinite;filter:drop-shadow(0 0 14px rgba(244,181,63,.25))}
-  .anim-stage .w{transform-box:fill-box}.anim-stage .wl1,.anim-stage .wl2{transform-origin:right center}.anim-stage .wr1,.anim-stage .wr2{transform-origin:left center}
-  .anim-stage .wl1{animation:flapL .42s ease-in-out infinite}.anim-stage .wr1{animation:flapR .42s ease-in-out infinite}
-  .anim-stage .wl2{animation:flapL .42s ease-in-out infinite .05s}.anim-stage .wr2{animation:flapR .42s ease-in-out infinite .05s}
-  @keyframes flapL{0%,100%{transform:rotate(0)}50%{transform:rotate(11deg)}}@keyframes flapR{0%,100%{transform:rotate(0)}50%{transform:rotate(-11deg)}}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-  .anim .b{padding:14px 18px 15px}.anim .nm{font-size:1.3rem;font-weight:700}.anim .sci{font-style:italic;color:var(--mut);font-size:.82rem;margin-top:2px}
-  .anim .one{color:#c4cdd3;font-size:.86rem;margin-top:9px;line-height:1.4}
-
-  /* ---- MULTI ---- */
-  .multi{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-  .multi .main{position:relative;aspect-ratio:1.2/1;overflow:hidden}.multi .main img{width:100%;height:100%;object-fit:cover}
-  .multi .inset{position:absolute;right:12px;bottom:12px;width:80px;height:80px;border-radius:12px;border:2px solid var(--teal);background:#0e151b;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.5)}
-  .multi .inset svg{width:72%;color:var(--amber)}
-  .multi .inset .lbl{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-family:"IBM Plex Mono",monospace;font-size:.5rem;background:var(--teal);color:#04120d;padding:2px 6px;border-radius:99px;white-space:nowrap}
-  .multi .strip{display:flex;gap:6px;padding:10px 12px 0}.multi .strip .t{flex:1;aspect-ratio:1/1;border-radius:7px;overflow:hidden;border:1px solid var(--line);opacity:.75}
-  .multi .strip .t.on{opacity:1;border-color:var(--teal)}.multi .strip .t img{width:100%;height:100%;object-fit:cover}
-  .multi .strip .t.draw{display:grid;place-items:center;background:#0e151b}.multi .strip .t.draw svg{width:70%;color:var(--amber)}
-  .multi .strip .t.map{display:grid;place-items:center;background:#0e151b;color:var(--teal);font-family:"IBM Plex Mono";font-size:.7rem}
-  .multi .b{padding:11px 14px 14px}.multi .nm{font-size:1.24rem;font-weight:700}.multi .sci{font-style:italic;color:var(--mut);font-size:.8rem;margin-top:1px}
-
-  /* ---- POLAROID ---- */
-  .pola{width:270px;margin:0 auto;background:#f3efe6;border-radius:4px;padding:14px 14px 8px;transform:rotate(-2deg);box-shadow:0 16px 34px rgba(0,0,0,.5);position:relative}
-  .pola .tape{position:absolute;top:-10px;left:50%;transform:translateX(-50%) rotate(-3deg);width:90px;height:26px;background:rgba(56,203,167,.45);border:1px dashed rgba(20,60,50,.4)}
-  .pola .ph{aspect-ratio:1/1;overflow:hidden;background:#000}.pola .ph img{width:100%;height:100%;object-fit:cover}
-  .pola .cap{font-family:"Caveat",cursive;font-size:1.5rem;color:#1c2a22;text-align:center;margin-top:8px;line-height:1}
-  .pola .cap small{display:block;font-family:"IBM Plex Mono",monospace;font-size:.55rem;color:#6a7a5f;letter-spacing:.08em;margin-top:4px}
-  .pola .stamp{display:flex;justify-content:center;gap:8px;margin:6px 0 4px;font-family:"IBM Plex Mono",monospace;font-size:.56rem;color:#4a5a44}.pola .stamp b{color:#1c2a22}
-
-  /* ---- SINGLE / DETAIL MODAL ---- */
-  .modal{position:fixed;inset:0;z-index:60;background:rgba(6,10,14,.8);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:40px 20px}
-  .modal.open{display:flex}
-  .detail{width:min(880px,100%);background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);display:grid;grid-template-columns:320px 1fr}
-  @media(max-width:720px){.detail{grid-template-columns:1fr}}
-  .detail .left{padding:24px;display:grid;place-items:center;background:radial-gradient(80% 60% at 50% 20%,rgba(56,203,167,.06),transparent 70%);border-right:1px solid var(--line)}
-  @media(max-width:720px){.detail .left{border-right:0;border-bottom:1px solid var(--line)}}
-  .detail .left .cardslot{cursor:default}.detail .left .cardslot:hover{transform:none}
-  .detail .info{padding:26px 28px 24px;position:relative}
-  .detail .x{position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;background:#0e151b;border:1px solid var(--line);color:var(--ink);font-size:1rem;cursor:pointer}
-  .detail .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
-  .detail h2{font-size:1.9rem;font-weight:700;margin:6px 0 1px;line-height:1}
-  .detail .sci{font-style:italic;color:var(--mut);font-size:.95rem}
-  .detail .cls{font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:var(--mut);margin-top:8px}
-  .detail .desc{color:#cdd6dd;font-size:.95rem;line-height:1.55;margin:14px 0 16px}
-  .detail .big3{display:flex;gap:8px;margin-bottom:16px}
-  .detail .big3 .st{flex:1;text-align:center;background:#0e151b;border:1px solid var(--line);border-radius:11px;padding:12px 5px}
-  .detail .big3 .st .v{font-size:1.15rem;font-weight:600}.detail .big3 .st .v small{font-size:.6rem;color:var(--mut);font-weight:400}
-  .detail .big3 .st .k{font-family:"IBM Plex Mono",monospace;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-top:5px}
-  .detail .facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
-  .detail .facts div{background:var(--card);padding:10px 12px}
-  .detail .facts .k{font-family:"IBM Plex Mono",monospace;font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
-  .detail .facts .v{font-size:.88rem;margin-top:2px}
-  .detail .actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .detail .watch{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--teal)}
-  .detail .nav{display:flex;gap:8px}
-  .detail .nav button{background:#0e151b;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 12px;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:.7rem}
-  .detail .nav button:hover{border-color:var(--teal);color:var(--teal)}
+  .back-c{position:absolute;inset:0;background:linear-gradient(180deg,#141d26,#0d141b);padding:15px 15px 12px;display:flex;flex-direction:column}
+  .back-c .bh{display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line);padding-bottom:9px}
+  .back-c .chip{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--teal);background:#0b1119;display:grid;place-items:center;flex:none}
+  .back-c .chip svg{width:76%;height:76%}
+  .back-c .bt{flex:1}.back-c .bt .n{font-weight:700;font-size:1.12rem;line-height:1}.back-c .bt .s{font-style:italic;color:var(--mut);font-size:.72rem}
+  .back-c .bn{font-family:"IBM Plex Mono",monospace;font-size:.58rem;color:var(--amber);font-weight:600}
+  .back-c .desc{font-size:.78rem;color:#cdd6dd;line-height:1.48;margin:10px 0 9px}
+  .back-c .facts{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:10px}
+  .back-c .facts .k{font-family:"IBM Plex Mono",monospace;font-size:.46rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+  .back-c .facts .v{font-size:.78rem}
+  .back-c .callout{margin-top:auto;border:1px solid rgba(244,181,63,.4);background:rgba(244,181,63,.06);border-radius:10px;padding:9px 11px}
+  .back-c .callout .ct{font-family:"IBM Plex Mono",monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+  .back-c .callout .cv{font-size:.8rem;color:#e7edf1;line-height:1.38;margin-top:3px}
+  .back-c .bfoot{display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:.55rem}
+  .back-c .bfoot .hdl{color:var(--teal)}.back-c .bfoot .w{color:var(--mut)}
 
   footer{border-top:1px solid var(--line);margin-top:40px;padding-top:24px;text-align:center}
-  footer .l{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--mut)}
-  footer .l a{color:var(--teal)}
-  footer .arch{margin-top:10px;font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:#5f6f78;opacity:.75}
-  footer .arch a{color:#6f8a9a}
+  footer .l{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--mut)}footer .l a{color:var(--teal)}
+  footer .arch{margin-top:10px;font-family:"IBM Plex Mono",monospace;font-size:.64rem;color:#5f6f78}footer .arch a{color:#6f8a9a}
 </style></head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="jar" viewBox="0 0 100 100"><rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/><path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="none" stroke="#38cba7" stroke-width="5"/><g transform="translate(50,59) scale(0.4) translate(-50,-48)"><g stroke="#38cba7" stroke-width="4" stroke-linecap="round"><path d="M30 48 L14 40"/><path d="M30 60 L12 60"/><path d="M30 72 L16 82"/><path d="M70 48 L86 40"/><path d="M70 60 L88 60"/><path d="M70 72 L84 82"/></g><path d="M44 20 C40 12 37 10 32 8 M56 20 C60 12 63 10 68 8" stroke="#f4b53f" stroke-width="2.6" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="58" rx="20" ry="26" fill="#38cba7"/><ellipse cx="50" cy="36" rx="12" ry="10" fill="#f4b53f"/><circle cx="50" cy="24" r="7" fill="#f4b53f"/></g></symbol>
+  <symbol id="dragon" viewBox="0 0 120 90"><rect x="57" y="28" width="6" height="54" rx="3" fill="currentColor"/><circle cx="60" cy="24" r="9" fill="currentColor"/><ellipse cx="30" cy="33" rx="27" ry="7" fill="currentColor" opacity=".9" transform="rotate(-13 30 33)"/><ellipse cx="90" cy="33" rx="27" ry="7" fill="currentColor" opacity=".9" transform="rotate(13 90 33)"/><ellipse cx="32" cy="47" rx="25" ry="6" fill="currentColor" opacity=".7" transform="rotate(10 32 47)"/><ellipse cx="88" cy="47" rx="25" ry="6" fill="currentColor" opacity=".7" transform="rotate(-10 88 47)"/></symbol>
+  <symbol id="robber" viewBox="0 0 120 90"><ellipse cx="60" cy="60" rx="8" ry="22" fill="currentColor"/><ellipse cx="60" cy="34" rx="12" ry="10" fill="currentColor"/><circle cx="55" cy="31" r="4" fill="#0e151b"/><circle cx="65" cy="31" r="4" fill="#0e151b"/><ellipse cx="80" cy="52" rx="20" ry="7" fill="currentColor" opacity=".28" transform="rotate(22 80 52)"/><ellipse cx="40" cy="52" rx="20" ry="7" fill="currentColor" opacity=".28" transform="rotate(-22 40 52)"/><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M52 44 L36 54"/><path d="M52 52 L34 64"/><path d="M68 44 L84 54"/><path d="M68 52 L86 64"/></g></symbol>
+  <symbol id="spider" viewBox="0 0 120 90"><g fill="currentColor"><ellipse cx="60" cy="56" rx="15" ry="19"/><circle cx="60" cy="36" r="10"/></g><g stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"><path d="M46 48 C30 42 22 32 14 22"/><path d="M46 56 C26 54 16 48 8 42"/><path d="M46 64 C28 68 18 76 10 86"/><path d="M74 48 C90 42 98 32 106 22"/><path d="M74 56 C94 54 104 48 112 42"/><path d="M74 64 C92 68 102 76 110 86"/></g></symbol>
+  <symbol id="bee" viewBox="0 0 120 90"><g fill="currentColor"><ellipse cx="60" cy="60" rx="16" ry="19"/><circle cx="60" cy="38" r="9"/><circle cx="60" cy="24" r="8"/></g><g fill="#0e151b"><path d="M45 54 h30 v4 h-30 z"/><path d="M47 64 h26 v4 h-26 z"/><path d="M50 74 h20 v4 h-20 z"/></g><ellipse cx="83" cy="46" rx="17" ry="8" fill="currentColor" opacity=".3" transform="rotate(26 83 46)"/><ellipse cx="37" cy="46" rx="17" ry="8" fill="currentColor" opacity=".3" transform="rotate(-26 37 46)"/></symbol>
+  <symbol id="grass" viewBox="0 0 120 90"><ellipse cx="52" cy="48" rx="24" ry="11" fill="currentColor"/><circle cx="28" cy="44" r="9" fill="currentColor"/><path d="M62 54 L84 38 L80 66" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M80 66 L96 80" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></symbol>
+  <symbol id="ant" viewBox="0 0 120 90"><g fill="currentColor"><ellipse cx="86" cy="48" rx="18" ry="15"/><circle cx="60" cy="48" r="10"/><circle cx="34" cy="48" r="14"/></g><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M58 44 L50 26"/><path d="M62 46 L64 26"/><path d="M66 46 L78 28"/><path d="M58 54 L50 72"/><path d="M62 56 L64 76"/><path d="M66 54 L78 72"/></g></symbol>
+  <symbol id="snail" viewBox="0 0 120 90"><path d="M12 64 C12 54 26 52 40 54 L72 54" stroke="currentColor" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="76" cy="44" r="22" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="76" cy="44" r="12" fill="none" stroke="currentColor" stroke-width="5"/><path d="M16 52 L12 40 M24 52 L24 38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="daddy" viewBox="0 0 120 90"><circle cx="60" cy="46" r="7" fill="currentColor"/><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 44 C30 20 18 18 6 24"/><path d="M55 49 C30 52 16 60 8 74"/><path d="M56 51 C40 66 34 76 30 86"/><path d="M65 44 C90 20 102 18 114 24"/><path d="M65 49 C90 52 104 60 112 74"/><path d="M64 51 C80 66 86 76 90 86"/></g></symbol>
+  <symbol id="worm" viewBox="0 0 120 90"><path d="M16 42 C34 24 46 56 62 42 C78 28 90 58 104 44" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"/></symbol>
+</svg>
+
 <div class="wrap">
   <div class="bar">
     <div class="brand"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/><g stroke="#0d1218" stroke-width="1.5" opacity=".45"><path d="M33 21 h34 M33 26 h34"/></g><path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="#0e151b" stroke="#38cba7" stroke-width="5"/><g transform="translate(50,59) scale(0.40) translate(-50,-48)"><g stroke="#38cba7" stroke-width="4" stroke-linecap="round"><path d="M30 48 L14 40"/><path d="M30 60 L12 60"/><path d="M30 72 L16 82"/><path d="M70 48 L86 40"/><path d="M70 60 L88 60"/><path d="M70 72 L84 82"/></g><path d="M44 20 C40 12 37 10 32 8 M56 20 C60 12 63 10 68 8" stroke="#f4b53f" stroke-width="2.6" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="58" rx="20" ry="26" fill="#38cba7"/><ellipse cx="50" cy="36" rx="12" ry="10" fill="#f4b53f"/><circle cx="50" cy="24" r="7" fill="#f4b53f"/><line x1="50" y1="36" x2="50" y2="82" stroke="#0e151b" stroke-width="2.6"/></g></svg><span>The Buggy <b>Bros</b></span></div>
@@ -156,9 +102,8 @@
   </div>
 
   <div class="controls">
-    <div class="grp" id="geo"></div>
-    <div class="spacer"></div>
-    <div class="grp styles"><span class="cap">Style</span><span id="styles"></span></div>
+    <div id="geo" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    <span class="hint">hover a card to flip · tap for full info</span>
   </div>
 
   <div class="stage" id="stage"></div>
@@ -169,129 +114,116 @@
   </footer>
 </div>
 
-<div class="modal" id="modal"><div class="detail" id="detail"></div></div>
-
 <script>
-const SVG = {
- dragon:`<rect x="57" y="28" width="6" height="54" rx="3" fill="currentColor"/><circle cx="60" cy="24" r="9" fill="currentColor"/><ellipse class="w wl1" cx="30" cy="33" rx="27" ry="7" fill="currentColor" opacity=".9"/><ellipse class="w wr1" cx="90" cy="33" rx="27" ry="7" fill="currentColor" opacity=".9"/><ellipse class="w wl2" cx="32" cy="47" rx="25" ry="6" fill="currentColor" opacity=".7"/><ellipse class="w wr2" cx="88" cy="47" rx="25" ry="6" fill="currentColor" opacity=".7"/>`,
- robber:`<ellipse cx="60" cy="60" rx="8" ry="22" fill="currentColor"/><ellipse cx="60" cy="34" rx="12" ry="10" fill="currentColor"/><circle cx="55" cy="31" r="4" fill="#0e151b"/><circle cx="65" cy="31" r="4" fill="#0e151b"/><ellipse cx="80" cy="52" rx="20" ry="7" fill="currentColor" opacity=".28" transform="rotate(22 80 52)"/><ellipse cx="40" cy="52" rx="20" ry="7" fill="currentColor" opacity=".28" transform="rotate(-22 40 52)"/><g stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M52 44 L36 54"/><path d="M52 52 L34 64"/><path d="M68 44 L84 54"/><path d="M68 52 L86 64"/></g>`,
- spider:`<g fill="currentColor"><ellipse cx="60" cy="56" rx="15" ry="19"/><circle cx="60" cy="36" r="10"/></g><g stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"><path d="M46 48 C30 42 22 32 14 22"/><path d="M46 56 C26 54 16 48 8 42"/><path d="M46 64 C28 68 18 76 10 86"/><path d="M74 48 C90 42 98 32 106 22"/><path d="M74 56 C94 54 104 48 112 42"/><path d="M74 64 C92 68 102 76 110 86"/></g>`,
- bee:`<g fill="currentColor"><ellipse cx="60" cy="60" rx="16" ry="19"/><circle cx="60" cy="38" r="9"/><circle cx="60" cy="24" r="8"/></g><g fill="#0e151b"><path d="M45 54 h30 v4 h-30 z"/><path d="M47 64 h26 v4 h-26 z"/><path d="M50 74 h20 v4 h-20 z"/></g><ellipse cx="83" cy="46" rx="17" ry="8" fill="currentColor" opacity=".3" transform="rotate(26 83 46)"/><ellipse cx="37" cy="46" rx="17" ry="8" fill="currentColor" opacity=".3" transform="rotate(-26 37 46)"/>`,
- grass:`<ellipse cx="52" cy="48" rx="24" ry="11" fill="currentColor"/><circle cx="28" cy="44" r="9" fill="currentColor"/><path d="M62 54 L84 38 L80 66" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M80 66 L96 80" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>`,
- ant:`<g fill="currentColor"><ellipse cx="86" cy="48" rx="18" ry="15"/><circle cx="60" cy="48" r="10"/><circle cx="34" cy="48" r="14"/></g><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M58 44 L50 26"/><path d="M62 46 L64 26"/><path d="M66 46 L78 28"/><path d="M58 54 L50 72"/><path d="M62 56 L64 76"/><path d="M66 54 L78 72"/></g>`,
- snail:`<path d="M12 64 C12 54 26 52 40 54 L72 54" stroke="currentColor" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="76" cy="44" r="22" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="76" cy="44" r="12" fill="none" stroke="currentColor" stroke-width="5"/><path d="M16 52 L12 40 M24 52 L24 38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>`,
- daddy:`<circle cx="60" cy="46" r="7" fill="currentColor"/><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M55 44 C30 20 18 18 6 24"/><path d="M55 49 C30 52 16 60 8 74"/><path d="M56 51 C40 66 34 76 30 86"/><path d="M65 44 C90 20 102 18 114 24"/><path d="M65 49 C90 52 104 60 112 74"/><path d="M64 51 C80 66 86 76 90 86"/></g>`,
- worm:`<path d="M16 42 C34 24 46 56 62 42 C78 28 90 58 104 44" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"/>`
-};
 const DATA = [
- {name:'Dragonfly',sci:'Anax junius',svg:'dragon',photo:'photos/dragonfly.jpg',pos:'50% 52%',type:'AERIAL',move:'Hover Flight',state:'Michigan',
+ {id:'BB-001',name:'Dragonfly',sci:'Anax junius',svg:'dragon',photo:'photos/dragonfly.jpg',pos:'50% 45%',state:'MI',rarity:'Common',
+  stats:[['8',' cm','Size'],['30',' mph','Top speed'],['Flyer',null,'Type']],
   one:'One of the fastest insects alive — and it can fly backward and hover.',
-  desc:"The common green darner is one of North America's largest, fastest dragonflies. It hunts on the wing, snatching mosquitoes and gnats mid-air, and is one of the few insects that actually migrates — some travel hundreds of miles south each fall.",
-  stats:[['8',' cm','Size'],['30',' mph','Top speed'],['Common',null,'How often']],
-  facts:[['Order','Odonata'],['Wingspan','~8 cm'],['Where','Ponds, marshes, meadows'],['Active','Spring–fall, daytime'],['Diet','Flying insects'],['Trick','Flies backward & hovers']],
+  desc:"The common green darner is one of North America's largest, fastest dragonflies — and one of the few insects that migrates, some travelling hundreds of miles south each fall.",
+  facts:[['Order','Odonata'],['Where','Ponds & meadows'],['Diet','Flying insects'],['Threat','Harmless']],
+  callout:['Lifecycle','Spends 1–2 years underwater as a nymph, then emerges to fly for only a few weeks.'],
   reel:'https://www.instagram.com/reel/DaqDM9JOhbv/'},
- {name:'Robber Fly',sci:'Asilidae',svg:'robber',photo:'photos/robberfly.jpg',pos:'50% 45%',type:'HUNTER',move:'Ambush',state:'Michigan',
+ {id:'BB-002',name:'Robber Fly',sci:'Asilidae',svg:'robber',photo:'photos/robberfly.jpg',pos:'50% 45%',state:'MI',rarity:'Common',
+  stats:[['20',' mm','Size'],['Midair',null,'Ambush'],['Hunter',null,'Type']],
   one:'The assassin fly — snatches other insects out of the air and drains them dry.',
-  desc:"Robber flies are aggressive aerial predators. They perch, lock onto prey, and ambush it in flight — injecting saliva that paralyzes and liquefies the insides. Some take prey larger than themselves, including bees and other flies.",
-  stats:[['20',' mm','Size'],['Midair',null,'Ambush'],['Common',null,'How often']],
-  facts:[['Order','Diptera'],['Length','~2 cm'],['Where','Sunny open ground'],['Active','Warm days'],['Diet','Other insects'],['Note','Harmless to people']],
+  desc:"Robber flies are aggressive aerial predators. They perch, lock onto prey, and ambush it in flight — some taking insects larger than themselves.",
+  facts:[['Order','Diptera'],['Where','Open sunny ground'],['Diet','Other insects'],['Threat','Bites if handled']],
+  callout:['Hunting','Injects saliva that paralyzes and liquefies its prey from the inside, then drinks it dry.'],
   reel:'https://www.instagram.com/reel/Daq655tOS7F/'},
- {name:'Orb-weaver',sci:'Araneidae',svg:'spider',photo:'photos/spider.jpg',pos:'60% 40%',type:'WEAVER',move:'Silk Trap',state:'Michigan',
+ {id:'BB-003',name:'Orb-weaver',sci:'Araneidae',svg:'spider',photo:'photos/spider.jpg',pos:'60% 40%',state:'MI',rarity:'Common',
+  stats:[['12',' mm','Size'],['Nightly',null,'Web'],['Weaver',null,'Type']],
   one:'Spins a fresh geometric web most nights, then recycles the old silk by eating it.',
-  desc:"Orb-weavers build the classic wheel-shaped web, often rebuilding it every night and eating the old silk to recycle the protein. They're shy, not aggressive, and their venom is harmless to people.",
-  stats:[['12',' mm','Size'],['Nightly',null,'Web rebuild'],['Common',null,'How often']],
-  facts:[['Order','Araneae'],['Body','~1–2 cm'],['Where','Gardens, shrubs, eaves'],['Active','Late summer–fall'],['Diet','Flying insects'],['Note','Harmless to humans']],
+  desc:"Orb-weavers build the classic wheel-shaped web, rebuilding it most nights. They're shy and their venom is harmless to people.",
+  facts:[['Order','Araneae'],['Where','Gardens & eaves'],['Diet','Flying insects'],['Threat','Harmless']],
+  callout:['The Web','Eats its old web each night to recycle the silk protein, then spins a brand-new one.'],
   reel:null},
- {name:'Honey Bee',sci:'Apis mellifera',svg:'bee',photo:null,type:'STINGER',move:'Sting',state:'Michigan',
+ {id:'BB-004',name:'Honey Bee',sci:'Apis mellifera',svg:'bee',photo:null,state:'MI',rarity:'Common',
+  stats:[['14',' mm','Size'],['2',' / 4','Sting'],['Pollinator',null,'Type']],
   one:'The insect the entire sting-pain scale is measured against — the anchor at 2.',
-  desc:"The honey bee is the benchmark for the Schmidt sting-pain scale — a 2 out of 4. A single hive can hold tens of thousands of workers, and one foraging bee may visit hundreds of flowers in a single trip.",
-  stats:[['14',' mm','Size'],['2',' / 4','Sting pain'],['Common',null,'How often']],
-  facts:[['Order','Hymenoptera'],['Length','~1.5 cm'],['Where','Near flowers & hives'],['Active','Spring–fall'],['Diet','Nectar & pollen'],['Sting','Barbed — one use']],
+  desc:"The honey bee is the benchmark for the Schmidt sting-pain scale. One hive holds tens of thousands of workers; a forager may visit hundreds of flowers per trip.",
+  facts:[['Order','Hymenoptera'],['Where','Flowers & hives'],['Diet','Nectar & pollen'],['Threat','Stings (barbed)']],
+  callout:['The Sting','A worker’s barbed stinger stays behind — it can sting only once, and doesn’t survive it.'],
   reel:null},
- {name:'Grasshopper',sci:'Caelifera',svg:'grass',photo:null,type:'JUMPER',move:'Long Jump',state:'Michigan',
+ {id:'BB-005',name:'Grasshopper',sci:'Caelifera',svg:'grass',photo:null,state:'MI',rarity:'Common',
+  stats:[['40',' mm','Size'],['20','×','Jump'],['Jumper',null,'Type']],
   one:'Launches itself about twenty times its own body length in a single hop.',
-  desc:"Grasshoppers launch roughly twenty times their body length in one jump, using catapult-like hind legs that store and release energy. Many also 'sing' by rubbing a leg against a wing.",
-  stats:[['40',' mm','Size'],['20','×','Jump'],['Common',null,'How often']],
-  facts:[['Order','Orthoptera'],['Length','2–5 cm'],['Where','Grassy fields'],['Active','Summer'],['Diet','Plants'],['Trick','20× body-length jump']],
+  desc:"Grasshoppers use catapult-like hind legs that store and release energy to leap huge distances. Many also 'sing' by rubbing a leg against a wing.",
+  facts:[['Order','Orthoptera'],['Where','Grassy fields'],['Diet','Plants'],['Threat','Harmless']],
+  callout:['The Jump','Its spring-loaded legs fling it ~20× its body length — like you clearing a basketball court.'],
   reel:'https://www.instagram.com/reel/DaqE9EGuulf/'},
- {name:'Ant',sci:'Formicidae',svg:'ant',photo:null,type:'WORKER',move:'Heavy Lift',state:'Michigan',
+ {id:'BB-006',name:'Ant',sci:'Formicidae',svg:'ant',photo:null,state:'MI',rarity:'Common',
+  stats:[['5',' mm','Size'],['50','×','Lifts'],['Worker',null,'Type']],
   one:'Hauls up to fifty times its own body weight — its neck can bear five thousand.',
-  desc:"Ants are among the strongest animals for their size, carrying 10–50 times their body weight; their neck joints can withstand thousands of times more. They live in highly organized colonies built around a single queen.",
-  stats:[['5',' mm','Size'],['50','×','Lifts'],['Common',null,'How often']],
-  facts:[['Order','Hymenoptera'],['Length','3–6 mm'],['Where','Just about everywhere'],['Active','Warm months'],['Diet','Omnivore'],['Strength','Lifts 50× its weight']],
+  desc:"Ants are among the strongest animals for their size, and live in highly organized colonies built around a single queen.",
+  facts:[['Order','Hymenoptera'],['Where','Just about everywhere'],['Diet','Omnivore'],['Threat','Nips']],
+  callout:['Strength','Carries 50× its own weight; its neck joint can withstand pressures of 5,000×.'],
   reel:'https://www.instagram.com/reel/DaoqEALOXf1/'},
- {name:'Grove Snail',sci:'Cepaea nemoralis',svg:'snail',photo:null,type:'GRAZER',move:'Slow Ride',state:'Michigan',
+ {id:'BB-007',name:'Grove Snail',sci:'Cepaea nemoralis',svg:'snail',photo:null,state:'MI',rarity:'Common',
+  stats:[['25',' mm','Size'],['0.03',' mph','Top speed'],['Grazer',null,'Type']],
   one:'Glides along on a ribbon of mucus at a blistering three-hundredths of a mile an hour.',
-  desc:"A land snail whose shell is banded in endlessly varying patterns — no two quite alike. It glides on a self-made ribbon of mucus at about 0.03 mph and pulls into its shell when threatened.",
-  stats:[['25',' mm','Size'],['0.03',' mph','Top speed'],['Common',null,'How often']],
-  facts:[['Class','Gastropoda'],['Shell','~2–3 cm'],['Where','Damp hardwoods, gardens'],['Active','After rain'],['Diet','Plants & algae'],['Trick','Every shell unique']],
+  desc:"A land snail whose shell is banded in endlessly varying patterns — no two quite alike — and which retreats into its shell when threatened.",
+  facts:[['Class','Gastropoda'],['Where','Damp hardwoods'],['Diet','Plants & algae'],['Threat','Harmless']],
+  callout:['The Shell','Every shell is banded differently — no two alike — a favorite of genetics researchers.'],
   reel:'https://www.instagram.com/reel/DaoqEALOXf1/'},
- {name:'Daddy Longlegs',sci:'Opiliones',svg:'daddy',photo:null,type:'HARMLESS',move:'Bluff',state:'Michigan',
+ {id:'BB-008',name:'Daddy Longlegs',sci:'Opiliones',svg:'daddy',photo:null,state:'MI',rarity:'Common',
+  stats:[['5',' cm','Size'],['None',null,'Venom'],['Harvester',null,'Type']],
   one:'Despite the playground legend, it has no venom and no fangs. Totally harmless.',
-  desc:"Despite the famous playground myth, harvestmen have no venom and no fangs — they can't bite you, and they aren't even spiders. They're gentle scavengers that eat decaying matter and tiny insects.",
-  stats:[['5',' cm','Size'],['None',null,'Venom'],['Common',null,'How often']],
-  facts:[['Order','Opiliones'],['Leg span','~5 cm'],['Where','Leaf litter, walls'],['Active','Summer–fall'],['Diet','Scavenger'],['Myth','"Most venomous" — false']],
+  desc:"Harvestmen aren't spiders at all. They have no venom and no fangs, and are gentle scavengers of decaying matter and tiny insects.",
+  facts:[['Order','Opiliones'],['Where','Leaf litter & walls'],['Diet','Scavenger'],['Threat','Harmless']],
+  callout:['Myth Busted','The “world’s most venomous” legend is false — no venom, no fangs, not even a spider.'],
   reel:'https://www.instagram.com/reel/DaoqEALOXf1/'},
- {name:'Earthworm',sci:'Lumbricina',svg:'worm',photo:null,type:'BUILDER',move:'Till Soil',state:'Michigan',
+ {id:'BB-009',name:'Earthworm',sci:'Lumbricina',svg:'worm',photo:null,state:'MI',rarity:'Common',
+  stats:[['10',' cm','Size'],['Tills',null,'Soil'],['Builder',null,'Type']],
   one:"Darwin's favorite animal — it quietly rebuilds the soil beneath your feet.",
-  desc:"Darwin called earthworms among the most important animals in history. They aerate and enrich soil, pull leaves underground, and process their own weight in earth as they move — quietly rebuilding the ground beneath your feet.",
-  stats:[['10',' cm','Size'],['Engineer',null,'Soil'],['Common',null,'How often']],
-  facts:[['Class','Clitellata'],['Length','5–15 cm'],['Where','Moist soil'],['Active','Year-round'],['Diet','Organic matter'],['Role','Soil engineer']],
+  desc:"Earthworms aerate and enrich soil, pull leaves underground, and process their own weight in earth as they move.",
+  facts:[['Class','Clitellata'],['Where','Moist soil'],['Diet','Organic matter'],['Threat','Harmless']],
+  callout:['Soil Engineer','Processes its own weight in soil, rebuilding the ground — Darwin called it one of history’s most important animals.'],
   reel:'https://www.instagram.com/reel/DaoqEALOXf1/'}
 ];
+const STATE_NAME={MI:'Michigan',TN:'Tennessee'};
 
-const pic = c => c.photo ? `<img src="${c.photo}" alt="${c.name}" style="object-position:${c.pos||'50% 50%'}">` : `<div class="drawn"><svg viewBox="0 0 120 90">${SVG[c.svg]}</svg></div>`;
-const stat = s => `<div class="st"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`;
-const hero = c => c.stats[1];
+const pic = c => c.photo ? `<img src="${c.photo}" alt="${c.name}" style="object-position:${c.pos||'50% 45%'}">` : `<div class="drawn"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div>`;
+const stat = s => `<div class="stat"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`;
 
-const STYLES = {
- mini:{label:'Minimal', fn:c=>`<div class="mini"><div class="ph">${pic(c)}<span class="reg">${c.state}</span></div><div class="b"><div class="nm">${c.name}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="row3">${c.stats.map(stat).join('')}</div>${c.reel?`<span class="wl">▸ watch the catch</span>`:''}</div></div>`},
- poke:{label:'Card', fn:c=>{const h=hero(c);return `<div class="poke"><div class="poke-in"><div class="poke-top"><span class="pn">${c.name}</span><span class="hp"><small>${(h[2]||'').toUpperCase().slice(0,3)}</small>${h[0]}</span></div><div class="poke-win">${pic(c)}${c.photo?'<span class="holo"></span>':''}<span class="type">✦ ${c.type}</span></div><div class="poke-sub">${c.sci} · ${c.state}</div><div class="poke-move"><b>✦ ${c.move}</b><p>${c.one}</p></div><div class="poke-foot"><span>SIZE ${c.stats[0][0]}${c.stats[0][1]||''}</span><span class="rar">◆ Common</span></div></div></div>`}},
- hud:{label:'HUD', fn:c=>{const h=hero(c);return `<div class="hud"><div class="hud-ph">${pic(c)}<span class="cx tl"></span><span class="cx tr"></span><span class="cx bl"></span><span class="cx br"></span><span class="ovr"><b>${h[0]}</b><small>${(h[1]||h[2]||'').toString().toUpperCase().trim()}</small></span></div><div class="hud-b"><div class="hud-nm">${c.name}<span>${c.sci}</span></div><div class="hud-tag">Class · ${c.type} · ${c.state}</div><div class="hchips">${c.stats.map(s=>`<div class="hchip"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`).join('')}</div></div></div>`}},
- anim:{label:'Animated', fn:c=>`<div class="anim"><div class="anim-stage"><svg viewBox="0 0 120 90">${SVG[c.svg]}</svg></div><div class="b"><div class="nm">${c.name}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="row3">${c.stats.map(stat).join('')}</div></div></div>`},
- multi:{label:'Multi', fn:c=>`<div class="multi"><div class="main">${pic(c)}<div class="inset"><svg viewBox="0 0 120 90">${SVG[c.svg]}</svg><span class="lbl">+ illustration</span></div></div><div class="strip"><div class="t on">${pic(c)}</div><div class="t draw"><svg viewBox="0 0 120 90">${SVG[c.svg]}</svg></div><div class="t map">MI</div></div><div class="b"><div class="nm">${c.name}</div><div class="sci">${c.sci}</div><div class="row3">${c.stats.map(stat).join('')}</div></div></div>`},
- pola:{label:'Snapshot', fn:c=>`<div class="pola"><span class="tape"></span><div class="ph">${pic(c)}</div><div class="cap">${c.name}<small>${c.sci.toUpperCase()} · ${c.state.toUpperCase()}</small></div><div class="stamp"><span>${c.stats[0][0]}${c.stats[0][1]||''}</span><span>·</span><span><b>${hero(c)[0]}${hero(c)[1]||''}</b></span><span>·</span><span>Common</span></div></div>`}
-};
+function frontHTML(c){
+  return `<div class="face front">
+    <div class="photo">${pic(c)}<span class="chip"><svg><use href="#jar"/></svg></span></div>
+    <div class="body">
+      <div class="b-head"><span class="b-name">${c.name}</span><span class="rar">◆ ${c.rarity}</span></div>
+      <div class="b-sci">${c.sci}</div>
+      <div class="one">${c.one}</div>
+      <div class="stats">${c.stats.map(stat).join('')}</div>
+      <div class="foot"><span class="hdl">@thebuggybros</span><span class="idn">${c.id} · ${c.state}</span></div>
+    </div></div>`;
+}
+function backHTML(c){
+  return `<div class="face back"><div class="back-c">
+    <div class="bh"><span class="chip"><svg><use href="#jar"/></svg></span><div class="bt"><div class="n">${c.name}</div><div class="s">${c.sci}</div></div><span class="bn">${c.id}</span></div>
+    <div class="desc">${c.desc}</div>
+    <div class="facts">${c.facts.map(f=>`<div><div class="k">${f[0]}</div><div class="v">${f[1]}</div></div>`).join('')}</div>
+    <div class="callout"><div class="ct">◷ ${c.callout[0]}</div><div class="cv">${c.callout[1]}</div></div>
+    <div class="bfoot"><span class="hdl">@thebuggybros</span><span class="w">thebuggybros.com</span></div>
+  </div></div>`;
+}
+function cardHTML(c,i){
+  return `<div class="flip" data-i="${i}"><div class="flip-inner">${frontHTML(c)}${backHTML(c)}</div></div>`;
+}
 
-let style = localStorage.getItem('bb-card-style') || 'poke';
-if(!STYLES[style]) style='poke';
-let geo = 'All';
-const STATES=['All','Michigan','Tennessee'];
-const cnt = s => s==='All'?DATA.length:DATA.filter(c=>c.state===s).length;
-
+let geo='All';
+const STATES=['All','MI','TN'];
+const cnt=s=>s==='All'?DATA.length:DATA.filter(c=>c.state===s).length;
 function controls(){
-  document.getElementById('geo').innerHTML = STATES.map(s=>`<button class="pill ${s===geo?'on':''}" data-g="${s}">${s} <span class="c">${cnt(s)}</span></button>`).join('');
-  document.getElementById('styles').innerHTML = Object.entries(STYLES).map(([k,v])=>`<button class="pill ${k===style?'on':''}" data-s="${k}">${v.label}</button>`).join('');
+  document.getElementById('geo').innerHTML = STATES.map(s=>`<button class="pill ${s===geo?'on':''}" data-g="${s}">${s==='All'?'All':STATE_NAME[s]} <span class="c">${cnt(s)}</span></button>`).join('');
 }
 function grid(){
   const stage=document.getElementById('stage');
   const list = geo==='All'?DATA:DATA.filter(c=>c.state===geo);
-  if(!list.length){ stage.innerHTML=`<div class="empty"><h3>Nothing logged in ${geo} yet.</h3><p><a href="${geo.toLowerCase()}.html">See the ${geo} checklist →</a></p></div>`; return; }
-  stage.innerHTML = list.map(c=>{const i=DATA.indexOf(c);return `<div class="cardslot" data-i="${i}">${STYLES[style].fn(c)}</div>`}).join('');
+  if(!list.length){ stage.innerHTML=`<div class="empty"><h3>Nothing logged in ${STATE_NAME[geo]||geo} yet.</h3><p><a href="${(STATE_NAME[geo]||geo).toLowerCase()}.html">See the checklist →</a></p></div>`; return; }
+  stage.innerHTML = list.map(c=>cardHTML(c,DATA.indexOf(c))).join('');
 }
-function openDetail(i){
-  const c=DATA[i], d=document.getElementById('detail');
-  d.innerHTML = `<div class="left"><div class="cardslot">${STYLES[style].fn(c)}</div></div>
-   <div class="info"><button class="x" onclick="closeDetail()">✕</button>
-    <div class="eyebrow">Caught · ${c.state} · No. ${String(i+1).padStart(2,'0')}</div>
-    <h2>${c.name}</h2><div class="sci">${c.sci}</div>
-    <div class="cls">${c.facts[0][0]} · ${c.facts[0][1]}</div>
-    <p class="desc">${c.desc}</p>
-    <div class="big3">${c.stats.map(stat).join('')}</div>
-    <div class="facts">${c.facts.map(f=>`<div><div class="k">${f[0]}</div><div class="v">${f[1]}</div></div>`).join('')}</div>
-    <div class="actions">${c.reel?`<a class="watch" href="${c.reel}" target="_blank">▸ watch the catch</a>`:`<span class="watch" style="color:#5f6f78">on our page</span>`}
-      <div class="nav"><button onclick="step(-1)">‹ Prev</button><button onclick="step(1)">Next ›</button></div></div>
-   </div>`;
-  document.getElementById('modal').classList.add('open');
-  document.getElementById('modal').dataset.i=i;
-}
-function step(n){const i=(+document.getElementById('modal').dataset.i+n+DATA.length)%DATA.length;openDetail(i);}
-function closeDetail(){document.getElementById('modal').classList.remove('open');}
 document.getElementById('geo').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;geo=b.dataset.g;controls();grid();});
-document.getElementById('styles').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;style=b.dataset.s;localStorage.setItem('bb-card-style',style);controls();grid();});
-document.getElementById('stage').addEventListener('click',e=>{const s=e.target.closest('.cardslot');if(s)openDetail(+s.dataset.i);});
-document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeDetail();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();if(document.getElementById('modal').classList.contains('open')){if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1);}});
+// tap-to-flip on touch; on desktop hover handles it
+document.getElementById('stage').addEventListener('click',e=>{const f=e.target.closest('.flip');if(f)f.classList.toggle('flipped');});
 controls(); grid();
 </script>
 </body></html>
