@@ -35,10 +35,9 @@
 
   .stage{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px;justify-items:center;margin-top:6px}
   .cardslot{cursor:pointer;width:300px;max-width:100%;position:relative}
-  .dlbtn{position:absolute;top:9px;right:9px;z-index:6;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:rgba(9,14,20,.78);color:var(--ink);font-size:1.05rem;line-height:1;display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .16s,border-color .16s,color .16s}
-  .cardslot:hover .dlbtn,.dlbtn:focus-visible{opacity:1}
-  .dlbtn:hover{border-color:var(--teal);color:var(--teal)}
-  .dlbtn.busy{opacity:1;pointer-events:none;color:var(--teal)}
+  .dlbtn{position:absolute;top:9px;right:9px;z-index:6;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:rgba(9,14,20,.55);color:#c2ccd2;font-size:1.05rem;line-height:1;display:grid;place-items:center;cursor:pointer;opacity:1;transition:background .16s,border-color .16s,color .16s}
+  .dlbtn:hover,.dlbtn:focus-visible{background:rgba(9,14,20,.92);border-color:var(--teal);color:var(--teal)}
+  .dlbtn.busy{pointer-events:none;color:var(--teal);border-color:var(--teal)}
   .actions .save{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--teal);background:none;border:0;cursor:pointer;padding:0}
   .actions .save:hover{text-decoration:underline}
   .empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mut)}
@@ -356,17 +355,30 @@ async function captureCard(node,c){
   if(clone.classList.contains('pola'))clone.style.transform='none';
   clone.querySelectorAll('.dlbtn').forEach(b=>b.remove());
   inlineUses(clone);
-  const box=document.createElement('div');
-  box.style.cssText='position:fixed;left:-10000px;top:0;padding:38px;background:#0d1218';
-  box.appendChild(clone);document.body.appendChild(box);
+  const holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:-10000px;top:0;background:transparent';
+  holder.appendChild(clone);document.body.appendChild(holder);
   try{
     if(document.fonts&&document.fonts.ready)await document.fonts.ready;
-    const canvas=await html2canvas(box,{scale:2,backgroundColor:'#0d1218',useCORS:true,logging:false});
+    const card=await html2canvas(clone,{scale:3,backgroundColor:null,useCORS:true,logging:false});
+    holder.remove();
+    // composite onto a 1080×1080 Instagram-ready square (no crop, no stretch)
+    const S=1080,out=document.createElement('canvas');out.width=S;out.height=S;
+    const ctx=out.getContext('2d');
+    ctx.fillStyle='#0d1218';ctx.fillRect(0,0,S,S);
+    const g=ctx.createRadialGradient(S/2,S*0.30,0,S/2,S*0.30,S*0.72);
+    g.addColorStop(0,'rgba(56,203,167,0.10)');g.addColorStop(1,'rgba(56,203,167,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,S,S);
+    const m=96,s=Math.min((S-m*2)/card.width,(S-m*2)/card.height);
+    const dw=card.width*s,dh=card.height*s;
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=46;ctx.shadowOffsetY=22;
+    ctx.drawImage(card,(S-dw)/2,(S-dh)/2,dw,dh);
+    ctx.restore();
     const a=document.createElement('a');
     a.download=`thebuggybros-${c.id}-${style}.png`;
-    a.href=canvas.toDataURL('image/png');a.click();
-  }catch(err){console.error(err);alert('Sorry — could not generate the image. Try again.');}
-  box.remove();
+    a.href=out.toDataURL('image/png');a.click();
+  }catch(err){console.error(err);alert('Sorry — could not generate the image. Try again.');holder.remove();}
 }
 async function downloadCard(i,btn){
   const slot=document.querySelector(`.cardslot[data-i="${i}"]`);
