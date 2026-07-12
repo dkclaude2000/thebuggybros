@@ -58,6 +58,12 @@
   .flip{width:300px;aspect-ratio:5/7;perspective:1300px}
   .flip-inner{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
   .flip:hover .flip-inner,.cardslot:hover .flip-inner{transform:rotateY(180deg)}
+  /* generic flip used by the non-field styles (front defines height, back fills it) */
+  .flipx{perspective:1300px}
+  .flipx-in{position:relative;transition:transform .7s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+  .cardslot:hover .flipx-in{transform:rotateY(180deg)}
+  .flipx-front{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flipx-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 16px 36px rgba(0,0,0,.5)}
   .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 16px 36px rgba(0,0,0,.5)}
   .face.back{transform:rotateY(180deg)}
   .front{background:var(--card)}
@@ -300,16 +306,25 @@ function backHTML(c){
     <div class="callout"><div class="ct">◷ ${c.callout[0]}</div><div class="cv">${c.callout[1]}</div></div>
     <div class="bfoot"><span class="hdl">@thebuggybros</span><span class="w">thebuggybros.com</span></div></div></div>`;
 }
+function genBack(c){
+  return `<div class="flipx-back"><div class="back-c">
+    <div class="bh"><span class="chip"><svg><use href="#jar"/></svg></span><div class="bt"><div class="n">${c.name}</div><div class="s">${c.sci}</div></div><span class="bn">${c.id}</span></div>
+    <div class="desc">${c.desc}</div>
+    <div class="facts">${c.facts.map(f=>`<div><div class="k">${f[0]}</div><div class="v">${f[1]}</div></div>`).join('')}</div>
+    <div class="callout"><div class="ct">◷ ${c.callout[0]}</div><div class="cv">${c.callout[1]}</div></div>
+    <div class="bfoot"><span class="hdl">@thebuggybros</span><span class="w">thebuggybros.com</span></div></div></div>`;
+}
+const flipWrap = (front,c) => `<div class="flipx"><div class="flipx-in"><div class="flipx-front">${front}</div>${genBack(c)}</div></div>`;
 const chipEl = `<span class="brandchip"><svg><use href="#jar"/></svg></span>`;
 const bfoot = c => `<div class="brandfoot"><span class="h">@thebuggybros</span><span class="i">${c.id} · ${c.state}</span></div>`;
 const rar = c => `<span class="rarpill">◆ ${c.rarity}</span>`;
 const STYLES = {
  field:{label:'Field Card', fn:c=>`<div class="flip"><div class="flip-inner">${fieldFront(c)}${backHTML(c)}</div></div>`},
- mini:{label:'Minimal', fn:c=>`<div class="mini"><div class="ph">${pic(c)}${chipEl}</div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
- poke:{label:'Trading Card', fn:c=>{const h=hero(c);return `<div class="poke"><div class="poke-in"><div class="poke-top"><span class="pn">${c.name}</span><span class="hp"><small>${(h[2]||'').toUpperCase().slice(0,3)}</small>${h[0]}</span></div><div class="poke-win">${pic(c)}${c.photo?'<span class="holo"></span>':''}${chipEl}<span class="type">✦ ${c.type}</span></div><div class="poke-sub">${c.sci} · ${STATE_NAME[c.state]}</div><div class="poke-move"><b>✦ ${c.callout[0]}</b><p>${c.one}</p></div><div class="poke-foot"><span>@thebuggybros · ${c.id} · ${c.state}</span><span class="rar">◆ ${c.rarity}</span></div></div></div>`}},
- hud:{label:'HUD', fn:c=>{return `<div class="hud"><div class="hud-ph">${pic(c)}${chipEl}<span class="cx tr"></span><span class="cx bl"></span><span class="cx br"></span></div><div class="hud-b"><div class="hud-nm">${c.name}<span>${c.sci}</span></div><div class="hud-tag">${c.type} · ◆ ${c.rarity}</div><div class="hchips">${c.stats.map(s=>`<div class="hchip"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`).join('')}</div></div>${bfoot(c)}</div>`}},
- anim:{label:'Animated', fn:c=>`<div class="anim"><div class="anim-stage">${chipEl}<svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
- multi:{label:'Multi-photo', fn:c=>`<div class="multi"><div class="main">${pic(c)}${chipEl}<div class="inset"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg><span class="lbl">+ illustration</span></div></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`},
+ mini:{label:'Minimal', fn:c=>flipWrap(`<div class="mini"><div class="ph">${pic(c)}${chipEl}</div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`,c)},
+ poke:{label:'Trading Card', fn:c=>{const h=hero(c);return flipWrap(`<div class="poke"><div class="poke-in"><div class="poke-top"><span class="pn">${c.name}</span><span class="hp"><small>${(h[2]||'').toUpperCase().slice(0,3)}</small>${h[0]}</span></div><div class="poke-win">${pic(c)}${c.photo?'<span class="holo"></span>':''}${chipEl}<span class="type">✦ ${c.type}</span></div><div class="poke-sub">${c.sci} · ${STATE_NAME[c.state]}</div><div class="poke-move"><b>✦ ${c.callout[0]}</b><p>${c.one}</p></div><div class="poke-foot"><span>@thebuggybros · ${c.id} · ${c.state}</span><span class="rar">◆ ${c.rarity}</span></div></div></div>`,c)}},
+ hud:{label:'HUD', fn:c=>flipWrap(`<div class="hud"><div class="hud-ph">${pic(c)}${chipEl}<span class="cx tr"></span><span class="cx bl"></span><span class="cx br"></span></div><div class="hud-b"><div class="hud-nm">${c.name}<span>${c.sci}</span></div><div class="hud-tag">${c.type} · ◆ ${c.rarity}</div><div class="hchips">${c.stats.map(s=>`<div class="hchip"><div class="v">${s[0]}${s[1]?`<small>${s[1]}</small>`:''}</div><div class="k">${s[2]}</div></div>`).join('')}</div></div>${bfoot(c)}</div>`,c)},
+ anim:{label:'Animated', fn:c=>flipWrap(`<div class="anim"><div class="anim-stage">${chipEl}<svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="one">${c.one}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`,c)},
+ multi:{label:'Multi-photo', fn:c=>flipWrap(`<div class="multi"><div class="main">${pic(c)}${chipEl}<div class="inset"><svg viewBox="0 0 120 90"><use href="#${c.svg}"/></svg><span class="lbl">+ illustration</span></div></div><div class="b"><div class="nmrow"><span class="nm">${c.name}</span>${rar(c)}</div><div class="sci">${c.sci}</div><div class="r3">${c.stats.map(st).join('')}</div></div>${bfoot(c)}</div>`,c)},
  pola:{label:'Snapshot', fn:c=>`<div class="pola"><span class="tape"></span><div class="ph">${pic(c)}${chipEl}</div><div class="cap">${c.name}<small>${c.sci.toUpperCase()} · ${c.id} · ${c.state}</small></div><div class="stamp"><span>${c.stats[0][0]}${c.stats[0][1]||''}</span><span>·</span><span><b>${hero(c)[0]}${hero(c)[1]||''}</b></span><span>·</span><span>${c.rarity}</span></div><div class="polahdl">@thebuggybros</div></div>`}
 };
 
@@ -351,6 +366,7 @@ async function captureCard(node,c){
   const clone=node.cloneNode(true);
   clone.style.margin='0';clone.style.width=w+'px';
   if(clone.classList.contains('flip')){clone.style.perspective='none';const fi=clone.querySelector('.flip-inner');if(fi){fi.style.transform='none';fi.style.transition='none';}const bk=clone.querySelector('.back');if(bk)bk.style.display='none';}
+  if(clone.classList.contains('flipx')){clone.style.perspective='none';const fi=clone.querySelector('.flipx-in');if(fi){fi.style.transform='none';fi.style.transition='none';}const bk=clone.querySelector('.flipx-back');if(bk)bk.style.display='none';}
   clone.querySelectorAll('.pola').forEach(p=>p.style.transform='none');
   if(clone.classList.contains('pola'))clone.style.transform='none';
   clone.querySelectorAll('.dlbtn').forEach(b=>b.remove());
