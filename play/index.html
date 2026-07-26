@@ -1,0 +1,582 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Buggy Bros — Match Game</title>
+<meta name="description" content="A fellow bug hunter found a mystery bug. Can you match it — and do you agree with the AI?">
+<meta property="og:title" content="The Buggy Bros — Match Game">
+<meta property="og:description" content="A fellow bug hunter found a mystery bug. Can you match it — and do you agree with the AI?">
+<meta property="og:image" content="https://thebuggybros.com/play/mystery-square.jpg">
+<meta property="og:url" content="https://thebuggybros.com/play/">
+<link rel="canonical" href="https://thebuggybros.com/play/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='31' y='17' width='38' height='14' rx='2' fill='%23f4b53f'/%3E%3Cpath d='M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z' fill='none' stroke='%2338cba7' stroke-width='5'/%3E%3Cellipse cx='50' cy='59' rx='8' ry='10' fill='%2338cba7'/%3E%3Ccircle cx='50' cy='45' r='5' fill='%23f4b53f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;
+  --amber:#f4b53f;--teal:#38cba7;--red:#ef5f5f;--neutral:#728089}
+html,body{background:#080b0f;color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100%}
+body{background-image:radial-gradient(70% 40% at 50% 0%, rgba(56,203,167,.10), transparent 60%);
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:600px;margin:0 auto;padding:20px 20px 60px;min-height:100dvh;display:flex;flex-direction:column}
+.mono{font-family:"IBM Plex Mono",monospace}
+.brand{display:flex;align-items:center;gap:12px;justify-content:center;padding:8px 0 20px}
+.brand svg{width:38px;height:38px;flex:none}
+.brand b{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.brand b span{color:var(--teal)}
+.screen{display:none;flex:1;flex-direction:column;animation:fade .35s ease both}
+.screen.on{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kick{font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--teal);text-align:center;margin-bottom:14px}
+.kick.amber{color:var(--amber)} .kick.mut{color:var(--mut)}
+h1{font-size:clamp(32px,8.5vw,50px);line-height:1.04;font-weight:700;letter-spacing:-.03em;text-align:center}
+h1 em{font-style:normal;color:var(--amber)}
+.lead{font-size:clamp(17px,4.4vw,21px);color:var(--mut);text-align:center;line-height:1.5;margin-top:16px;max-width:460px;align-self:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:"Space Grotesk";
+  font-weight:700;font-size:20px;border:0;border-radius:16px;padding:18px 28px;cursor:pointer;width:100%;
+  background:var(--teal);color:#06231c;transition:transform .1s,filter .1s,opacity .1s}
+.btn:active{transform:translateY(1px)} .btn:hover{filter:brightness(1.05)}
+.btn.amber{background:var(--amber);color:#241a02}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:18px}
+.btn:disabled{opacity:.4;cursor:default;filter:none}
+.actions{margin-top:auto;padding-top:22px;display:flex;flex-direction:column;gap:12px}
+.sq{position:relative;border-radius:18px;overflow:hidden;background:#000;border:4px solid var(--neutral);aspect-ratio:1}
+.sq img{width:100%;height:100%;object-fit:cover;display:block}
+.sq.teal{border-color:var(--teal)} .sq.amber{border-color:var(--amber)}
+.cap{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);text-align:center;margin-bottom:8px}
+.cap.amber{color:var(--amber)} .cap.teal{color:var(--teal)}
+
+#intro{justify-content:center;text-align:center}
+#intro .hero{width:min(74%,300px);align-self:center;margin:26px auto 6px}
+.myst-wrap{width:min(60%,240px);margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tile{position:relative;border-radius:16px;overflow:hidden;background:#000;border:3px solid var(--line);
+  cursor:pointer;aspect-ratio:1;transition:transform .12s,border-color .12s,box-shadow .12s}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile:hover{border-color:#3d505b}
+.tile.sel{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 0 0 4px rgba(56,203,167,.4),0 12px 30px rgba(0,0,0,.5)}
+.tile .num{position:absolute;top:8px;left:8px;width:34px;height:34px;border-radius:9px;background:rgba(8,11,15,.8);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;border:1px solid var(--line)}
+.tile.sel .num{background:var(--teal);color:#06231c;border-color:var(--teal)}
+.pickbar{margin-top:18px;min-height:30px;text-align:center;font-size:19px;color:var(--mut)}
+.pickbar b{color:var(--ink)}
+
+/* reason screen */
+#reason .pickshow{width:min(50%,200px);align-self:center;margin:8px auto 0}
+.field{margin-top:22px}
+.field label{display:block;font-size:15px;color:var(--mut);margin-bottom:8px;font-family:"IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase}
+textarea,input[type=text]{width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  color:var(--ink);font-family:"Space Grotesk";font-size:19px;padding:15px 16px;resize:none}
+textarea{min-height:96px}
+textarea:focus,input:focus{outline:none;border-color:var(--teal)}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.err{color:var(--red);font-size:15px;margin-top:10px;text-align:center;min-height:20px}
+.hint{color:var(--mut);font-size:14px;margin-top:6px}
+
+/* result reveal */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 0 8px}
+.vs .col{display:flex;flex-direction:column}
+.name{font-size:clamp(18px,4.6vw,22px);font-weight:700;text-align:center;margin-top:10px;line-height:1.15;min-height:2.4em;display:flex;align-items:center;justify-content:center}
+.think{text-align:center;color:var(--mut);font-size:19px;margin:20px 0}
+.think .dots i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--teal);margin:0 4px;animation:blink 1s infinite both}
+.think .dots i:nth-child(2){animation-delay:.2s}.think .dots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.verdict{text-align:center;font-size:clamp(24px,6.5vw,34px);font-weight:700;margin:8px 0 4px;opacity:0;transition:opacity .4s}
+.verdict.show{opacity:1}
+.verdict.agree{color:var(--teal)} .verdict.disagree{color:var(--amber)}
+.subq{text-align:center;color:var(--mut);font-size:18px;margin-top:4px}
+
+.tell{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:22px}
+.tell h3{font-size:15px;font-family:"IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);text-align:center;margin-bottom:14px}
+.tellrow{margin-bottom:14px}.tellrow:last-child{margin-bottom:0}
+.tellpair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tellpair .sq{border-color:var(--teal)}
+.telllabel{text-align:center;color:var(--mut);font-size:17px;margin-top:8px}
+.telllabel b{color:var(--ink)}
+
+/* community feed (iNaturalist-style identifications) */
+.feed{margin-top:26px}
+.feed h3{font-size:15px;font-family:"IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+.leading{color:var(--mut);font-size:16px;margin-bottom:16px}.leading b{color:var(--ink)}
+.idcard{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.idcard .av{width:44px;height:44px;flex:none;border-radius:50%;background:var(--card);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;overflow:hidden}
+.idcard .av.ai{background:var(--teal);color:#06231c;border-color:var(--teal)}
+.idcard .av.finder{background:var(--amber);color:#241a02;border-color:var(--amber)}
+.idcard .av svg{width:70%;height:70%}
+.idcard .body{flex:1;min-width:0}
+.idcard .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.idcard .who2{font-weight:700;font-size:18px}
+.idcard .badge{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:6px;background:var(--line);color:var(--mut)}
+.idcard .badge.ai{background:rgba(56,203,167,.16);color:var(--teal)}
+.idcard .badge.finder{background:rgba(244,181,63,.16);color:var(--amber)}
+.idcard .badge.verified{background:rgba(56,203,167,.16);color:var(--teal)}
+.idcard .picked{color:var(--mut);font-size:16px;margin-top:2px}.idcard .picked b{color:var(--ink)}
+.idcard .reason{font-size:18px;line-height:1.4;margin-top:6px}
+.idcard .row{display:flex;gap:16px;align-items:center;margin-top:9px}
+.agr{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--line);color:var(--mut);
+  border-radius:999px;padding:5px 13px;font-size:15px;font-weight:600;cursor:pointer;font-family:"Space Grotesk"}
+.agr.on{background:rgba(56,203,167,.14);border-color:var(--teal);color:var(--teal)}
+.flag{background:none;border:0;color:#4a5964;cursor:pointer;font-size:15px}
+.flag:hover{color:var(--red)}
+.foot{text-align:center;color:var(--mut);font-size:14px;padding-top:28px;line-height:1.7}
+.foot a{color:var(--teal);text-decoration:none;font-weight:600}
+.reveal-el{opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
+.reveal-el.show{opacity:1;transform:none}
+
+/* ── board: spotlight pair + falling B&W logos (the show's language) ─────── */
+#board{position:relative;overflow:hidden}
+#board>*:not(.bbrain){position:relative;z-index:1}
+.bbrain{position:absolute;inset:0;pointer-events:none;z-index:0}
+.bbrain i{position:absolute;top:-80px;left:var(--x);width:var(--w);opacity:var(--o);
+  animation:bbfall var(--fd) linear infinite;animation-delay:var(--fdel)}
+.bbrain svg{width:100%;height:auto;display:block}
+@keyframes bbfall{to{transform:translateY(130vh) rotate(var(--rot))}}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pickslot{border-style:dashed;display:flex;align-items:center;justify-content:center}
+.pickslot .q{font-size:54px;color:#56707c;font-weight:700}
+.pickslot.filled{border-style:solid;border-color:var(--amber)}
+@keyframes zoomin{from{transform:scale(.55);opacity:.3}to{transform:none;opacity:1}}
+.pickslot img.zoom{animation:zoomin .25s cubic-bezier(.2,.9,.3,1.2) both}
+
+/* ── AI thinking — the show's matrix theater, mobile-sized ───────────────── */
+#aithink{position:relative;overflow:hidden;justify-content:flex-start;min-height:80dvh;padding-top:6px}
+.matrix{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.matrix b{position:absolute;top:0;left:var(--x);font-family:"IBM Plex Mono",monospace;font-weight:400;
+  font-size:14px;line-height:1.35;color:var(--teal);opacity:.32;white-space:pre;
+  text-shadow:0 0 8px rgba(56,203,167,.45);animation:mfall var(--fd) linear infinite;animation-delay:var(--fdel)}
+@keyframes mfall{from{transform:translateY(-100%)}to{transform:translateY(100vh)}}
+#aithink>*:not(.matrix){position:relative;z-index:1}
+.at-status{text-align:center;font-size:17px;letter-spacing:.1em;color:var(--teal);
+  text-shadow:0 0 12px rgba(56,203,167,.6);margin:8px 0 14px}
+.at-myst{width:min(34%,140px);margin:0 auto}
+.at-myst .sq{border-width:3px;border-radius:14px}
+.at-stage{position:relative;height:min(78vw,360px);margin-top:18px}
+.at-zoom{position:absolute;left:50%;top:0;width:min(56%,230px);aspect-ratio:1;border-radius:16px;
+  overflow:hidden;background:#000;border:4px solid var(--teal);box-shadow:0 0 34px rgba(56,203,167,.5);
+  opacity:0;transform:translateX(-50%) scale(.5);transition:transform .3s cubic-bezier(.2,.9,.3,1.15),opacity .3s}
+.at-zoom img{width:100%;height:100%;object-fit:cover;display:block}
+.at-zoom.in{opacity:1;transform:translateX(calc(-50% + var(--ox,0px))) scale(1)}
+.at-zoom.out{opacity:0;transition:transform .5s ease-in,opacity .5s ease-in;
+  transform:translateX(calc(-50% + var(--fx,300px))) translateY(var(--fy,-80px)) scale(.3) rotate(var(--fr,30deg))}
+.at-zoom.keep{opacity:0;transition:transform .65s ease,opacity .65s ease;
+  transform:translateX(-50%) translateY(-150px) scale(.45)}
+.at-trait{text-align:center;font-size:clamp(30px,8.5vw,44px);font-weight:800;letter-spacing:-.02em;
+  margin-top:0;opacity:0;transition:opacity .3s;text-shadow:0 2px 16px rgba(0,0,0,.8);position:absolute;
+  left:0;right:0;top:min(60vw,276px)}
+.at-trait.show{opacity:1}
+.at-pick{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;
+  gap:10px;opacity:0;transform:translateY(40px) scale(.8);transition:opacity .4s,transform .4s}
+.at-pick.show{opacity:1;transform:none}
+.at-robot{width:74px;height:74px}
+.at-robot svg{width:100%;height:100%}
+.at-final{font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);
+  text-shadow:0 0 12px rgba(56,203,167,.6)}
+.at-card{position:relative;width:min(56%,230px);aspect-ratio:1;border-radius:16px;overflow:hidden;
+  border:4px solid var(--teal);box-shadow:0 0 40px rgba(56,203,167,.5);background:#000}
+.at-card img{width:100%;height:100%;object-fit:cover;display:block}
+.at-curtain{position:absolute;inset:0;display:flex;overflow:hidden}
+.at-curtain i{width:50%;height:100%;background:linear-gradient(90deg,#0e1d24,#17333c 60%,#0e1d24);
+  transition:transform .8s cubic-bezier(.6,0,.3,1)}
+.at-curtain i.l{border-right:2px solid rgba(56,203,167,.55)}
+.at-curtain i.r{border-left:2px solid rgba(56,203,167,.55)}
+.at-curtain.open i.l{transform:translateX(-102%)}
+.at-curtain.open i.r{transform:translateX(102%)}
+.at-name{font-size:clamp(20px,5.5vw,26px);font-weight:800;text-align:center;min-height:1.3em}
+.at-name b{opacity:0;display:inline-block;margin:0 4px;transition:opacity .12s;font-weight:800}
+.at-name b.on{opacity:1}
+.skip{position:absolute;right:2px;bottom:0;z-index:2;background:none;border:0;color:#4a5964;
+  font-size:14px;letter-spacing:.1em;cursor:pointer;padding:10px}
+.skip:hover{color:var(--mut)}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/>
+      <path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="none" stroke="#38cba7" stroke-width="5"/>
+      <ellipse cx="50" cy="59" rx="8" ry="10" fill="#38cba7"/><circle cx="50" cy="45" r="5" fill="#f4b53f"/>
+    </svg>
+    <b>The Buggy <span>Bros</span></b>
+  </div>
+
+  <!-- INTRO -->
+  <section class="screen on" id="intro">
+    <div class="kick amber">A fellow bug hunter needs help</div>
+    <div class="sq teal hero"><img id="introImg" alt="mystery bug"></div>
+    <h1>What <em>is</em><br>this bug?</h1>
+    <p class="lead">Someone found this mystery bug and sent it in. Can you match it — and do you agree with the AI?</p>
+    <div class="actions"><button class="btn" id="btnStart">Play the match game</button></div>
+  </section>
+
+  <!-- BOARD -->
+  <section class="screen" id="board">
+    <div class="bbrain" id="bbrain"></div>
+    <div class="kick">Which one matches?</div>
+    <div class="pair">
+      <div><div class="cap">The mystery bug</div><div class="sq teal"><img id="boardMyst" alt="mystery bug"></div></div>
+      <div><div class="cap amber">Your pick</div><div class="sq pickslot" id="pickslot"><span class="q">?</span></div></div>
+    </div>
+    <div class="grid" id="grid" style="margin-top:16px"></div>
+    <div class="pickbar" id="pickbar">Tap the bug you think it is</div>
+    <div class="actions"><button class="btn amber" id="btnLock" disabled>That's my pick →</button></div>
+  </section>
+
+  <!-- REASON (commit before you can see anyone else's) -->
+  <section class="screen" id="reason">
+    <div class="kick">You picked</div>
+    <div class="sq amber pickshow"><img id="reasonImg" alt="your pick"></div>
+    <div class="name" id="reasonName" style="min-height:auto;margin-bottom:6px">—</div>
+    <div class="field"><label>Why? What made you say that?</label>
+      <textarea id="reasonText" maxlength="280" placeholder="e.g. The pinched waist looks the same…"></textarea>
+      <div class="hint">One line is plenty. You'll see everyone else's reasons after you submit.</div>
+    </div>
+    <div class="who">
+      <input type="text" id="reasonWho" maxlength="40" placeholder="First name (optional)">
+      <input type="text" id="reasonHandle" maxlength="40" placeholder="@handle (optional)">
+    </div>
+    <div class="err" id="reasonErr"></div>
+    <div class="actions"><button class="btn" id="btnSubmit">Submit &amp; see everyone's answers</button>
+      <button class="btn ghost" id="btnBackBoard">← change my pick</button></div>
+  </section>
+
+  <!-- AI THINKING — the show's matrix theater: each candidate is weighed against the
+       mystery, rejects fly off, the match is kept, then the curtain reveal. -->
+  <section class="screen" id="aithink">
+    <div class="matrix" id="matrix"></div>
+    <div class="at-status mono" id="atStatus">AI is thinking…</div>
+    <div class="at-myst"><div class="sq teal"><img id="atMyst" alt="mystery bug"></div></div>
+    <div class="at-stage">
+      <div class="at-zoom" id="atZoom"><img alt=""></div>
+      <div class="at-trait" id="atTrait"></div>
+      <div class="at-pick" id="atPick">
+        <div class="at-robot" id="atRobot"></div>
+        <div class="at-final mono">AI&rsquo;s Final Answer</div>
+        <div class="at-card"><img id="atPickImg" alt="AI pick">
+          <div class="at-curtain" id="atCurtain"><i class="l"></i><i class="r"></i></div></div>
+        <div class="at-name" id="atName"></div>
+      </div>
+    </div>
+    <button class="skip mono" id="btnSkip">skip ▸</button>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="result">
+    <div class="kick mut">The picks are in</div>
+    <div class="vs">
+      <div class="col"><div class="cap amber">You said</div><div class="sq amber"><img id="youImg" alt="your pick"></div><div class="name" id="youName">—</div></div>
+      <div class="col"><div class="cap teal">AI said</div><div class="sq teal reveal-el" id="aiSq"><img id="aiImg" alt="AI pick"></div><div class="name reveal-el" id="aiName">—</div></div>
+    </div>
+    <div class="think" id="think">🔍 The AI is thinking<span class="dots"><i></i><i></i><i></i></span></div>
+    <div class="verdict" id="verdict">—</div>
+    <div class="subq reveal-el" id="subq">The AI can be wrong too — what do <b>you</b> think?</div>
+
+    <div class="tell reveal-el" id="tell">
+      <h3>Why the AI says so</h3>
+      <div class="tellrow"><div class="tellpair"><div class="sq"><img src="tell-waist-myst.jpg" alt=""></div><div class="sq"><img src="tell-waist-cand.jpg" alt=""></div></div><div class="telllabel">the pinched <b>waist</b></div></div>
+      <div class="tellrow"><div class="tellpair"><div class="sq"><img src="tell-jaws-myst.jpg" alt=""></div><div class="sq"><img src="tell-jaws-cand.jpg" alt=""></div></div><div class="telllabel">the big <b>head &amp; jaws</b></div></div>
+    </div>
+
+    <div class="feed reveal-el" id="feed">
+      <h3>What everyone thinks</h3>
+      <div class="leading" id="leading"></div>
+      <div id="idlist"></div>
+    </div>
+
+    <div class="actions reveal-el" id="resultActions">
+      <button class="btn" id="btnShare">Share this</button>
+      <button class="btn ghost" id="btnAgain">Play again</button>
+    </div>
+    <div class="foot reveal-el" id="foot">Follow the hunt: <a href="https://instagram.com/thebuggybros" target="_blank" rel="noopener">@thebuggybros</a><br>Found a mystery bug? Send it to us — it could be the next game.</div>
+  </section>
+</div>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════════════════
+   THE BUGGY BROS — MATCH GAME + community reasons.
+   Modeled on iNaturalist: you submit an identification (a pick + a reason), then
+   see everyone else's and can Agree. Commit-before-reveal: no peeking first.
+   Backend = Supabase (real). Falls back to a local in-browser store if the table
+   isn't created yet, so it's fully playable offline. Run match-reasons-schema.sql
+   once in the Supabase SQL editor to go live for real.
+   ═════════════════════════════════════════════════════════════════════════════ */
+const SB_URL = 'https://ryvvzykmjkxrozjugpod.supabase.co';
+const SB_KEY = 'sb_publishable_RBafrbcyK3Q70_OuulTzZA_YHKWemG1';
+const PUZZLE_ID = 'big-headed-ground-beetle';
+
+const PUZZLE = {
+  mystery: 'mystery-square.jpg',
+  aiAnswer: 'bigheaded',
+  pool: [
+    { key:'bess', name:'Bess Beetle', img:'photo-bess.jpg', trait:'Ribbed back' },
+    { key:'stag', name:'Stag Beetle', img:'photo-stag.jpg', trait:'Big jaws' },
+    { key:'darkling', name:'Darkling Beetle', img:'photo-darkling.jpg', trait:'Rounded' },
+    { key:'ground', name:'Ground Beetle', img:'photo-ground.jpg', trait:'Slim' },
+    { key:'bigheaded', name:'Big-headed Ground Beetle', img:'photo-bigheaded.jpg', trait:'Pinched waist' },
+  ],
+};
+const ROBOT_SVG = `<svg viewBox="0 0 200 200" aria-hidden="true">
+  <line x1="100" y1="36" x2="100" y2="18" stroke="#38cba7" stroke-width="5"/>
+  <circle cx="100" cy="13" r="8" fill="#f4b53f"/>
+  <rect x="44" y="42" width="112" height="94" rx="22" fill="#1b2831" stroke="#38cba7" stroke-width="4"/>
+  <rect x="58" y="60" width="84" height="44" rx="12" fill="#0a0f14"/>
+  <circle cx="82" cy="82" r="9" fill="#38cba7"/><circle cx="118" cy="82" r="9" fill="#38cba7"/>
+  <rect x="80" y="116" width="40" height="8" rx="4" fill="#38cba7" opacity=".55"/>
+  <rect x="64" y="146" width="72" height="40" rx="12" fill="#1b2831" stroke="#26333c" stroke-width="3"/></svg>`;
+/* pinned participants — the AI and the original finder — so the feed is never empty
+   and models a reasoned-but-wrong guess (Kate first said bess beetle). */
+const PINNED = [
+  { av:'ai', badge:'ai', who:'The AI', pick:'bigheaded', reason:'That pinched “waist” between the thorax and abdomen — that’s the tell.' },
+  { av:'finder', badge:'finder', who:'Kate', pick:'bess', reason:'I thought it was a bess beetle when I found it!' },
+];
+
+const byId = id => document.getElementById(id);
+const rand = n => Math.floor(Math.random()*n);
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const esc = s => (s||'').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+const nameOf = k => (PUZZLE.pool.find(p=>p.key===k)||{}).name || k;
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); scrollTo(0,0); }
+
+const answer = PUZZLE.pool.find(p=>p.key===PUZZLE.aiAnswer);
+let options=[], pick=null, myRowId=null;
+
+/* ── backend: Supabase if the table exists, else a local mock ─────────────── */
+let sb=null, useDB=false;
+try { if (window.supabase && SB_URL) sb = window.supabase.createClient(SB_URL, SB_KEY); } catch(e){}
+const LS = 'bb_match_reasons_' + PUZZLE_ID, AG = 'bb_match_agrees';
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)||'[]'); } catch(e){ return []; } };
+const lsSet = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+
+async function fetchReasons(){
+  if (sb) {
+    const { data, error } = await sb.from('match_reasons').select('*')
+      .eq('puzzle', PUZZLE_ID).eq('hidden', false)
+      .order('agree_count',{ascending:false}).order('created_at',{ascending:true});
+    if (!error) { useDB = true; return data; }
+  }
+  useDB = false; return lsGet(LS);
+}
+async function saveReason(row){
+  if (sb) {
+    const { data, error } = await sb.from('match_reasons').insert(row).select().single();
+    if (!error) { useDB = true; return data; }
+  }
+  const local = lsGet(LS); const r = Object.assign({ id:'loc-'+Date.now(), agree_count:0, created_at:new Date().toISOString() }, row);
+  local.push(r); lsSet(LS, local); useDB = false; return r;
+}
+async function agreeReason(id){
+  if (useDB && sb && !String(id).startsWith('loc-')) { await sb.rpc('agree_reason', { rid:id }); return; }
+  const local = lsGet(LS); const r = local.find(x=>x.id===id); if(r){ r.agree_count=(r.agree_count||0)+1; lsSet(LS, local); }
+}
+async function reportReason(id){
+  if (useDB && sb && !String(id).startsWith('loc-')) { await sb.rpc('report_reason', { rid:id }); return; }
+  const local = lsGet(LS); const r = local.find(x=>x.id===id); if(r){ r.reports=(r.reports||0)+1; if(r.reports>=4) r.hidden=true; lsSet(LS, local); }
+}
+
+/* ── light content filter (layer 1; ramp up with a moderation API later) ──── */
+const BAD = /\b(fuck\w*|sh[i1]t\w*|b[i1]tch\w*|c[u*]nt\w*|d[i1]ck\w*|assh[o0]le\w*|bastard\w*|n[i1]gg\w*|f[a@]gg?\w*|retard\w*|slut\w*|wh[o0]re\w*|c[o0]ck\w*|pussy\w*|porn\w*)\b/i;
+const LINK = /(https?:\/\/|www\.|\.com|\.net|\.org|@\w+\.\w)/i;
+function checkText(t){
+  if (BAD.test(t)) return 'Let’s keep it friendly — please reword that.';
+  if (LINK.test(t)) return 'No links, please.';
+  if (/\d{7,}/.test(t.replace(/\s/g,''))) return 'Please don’t include phone numbers.';
+  return '';
+}
+
+/* ── show dressing: falling B&W logos on the board, matrix rain for the AI ── */
+const JAR_MONO = c => `<svg viewBox="0 0 100 100"><rect x="31" y="17" width="38" height="14" rx="2" fill="${c}"/>
+  <path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="none" stroke="${c}" stroke-width="5"/>
+  <ellipse cx="50" cy="59" rx="8" ry="10" fill="${c}"/><circle cx="50" cy="45" r="5" fill="${c}"/></svg>`;
+(function buildRain(){
+  const el = byId('bbrain'); if (!el) return;
+  for (let k=0;k<8;k++){
+    const i = document.createElement('i'), dur = 8+Math.random()*6;
+    i.innerHTML = JAR_MONO(k%2 ? '#e8edef' : '#4a5a64');
+    i.style.setProperty('--x', Math.round(Math.random()*92)+'%');
+    i.style.setProperty('--w', Math.round(26+Math.random()*34)+'px');
+    i.style.setProperty('--o', (0.06+Math.random()*0.08).toFixed(2));
+    i.style.setProperty('--fd', dur.toFixed(1)+'s');
+    i.style.setProperty('--fdel', (-Math.random()*dur).toFixed(1)+'s');
+    i.style.setProperty('--rot', Math.round(Math.random()*80-40)+'deg');
+    el.appendChild(i);
+  }
+})();
+(function buildMatrix(){
+  const el = byId('matrix'); if (!el) return;
+  for (let x=0;x<12;x++){
+    const b = document.createElement('b'); let s='';
+    for (let r=0;r<46;r++) s += (Math.random()<.5?'0':'1')+'\n';
+    b.textContent = s; b.style.setProperty('--x', (x*8.4+1)+'%');
+    const dur = 7+Math.random()*7;
+    b.style.setProperty('--fd', dur.toFixed(1)+'s');
+    b.style.setProperty('--fdel', (-Math.random()*dur).toFixed(1)+'s');
+    el.appendChild(b);
+  }
+})();
+byId('atRobot').innerHTML = ROBOT_SVG;
+
+/* ── game ─────────────────────────────────────────────────────────────────── */
+function buildBoard(){
+  pick=null; myRowId=null;
+  const others = shuffle(PUZZLE.pool.filter(p=>p.key!==PUZZLE.aiAnswer)).slice(0,3);
+  options = shuffle([answer, ...others]);
+  byId('introImg').src = byId('boardMyst').src = byId('atMyst').src = PUZZLE.mystery;
+  byId('aiImg').src = byId('atPickImg').src = answer.img; byId('aiName').textContent = answer.name;
+  const grid = byId('grid'); grid.innerHTML = '';
+  options.forEach((o,i)=>{
+    const t = document.createElement('button'); t.className='tile'; t.dataset.key=o.key;
+    t.innerHTML = `<span class="num">${i+1}</span><img src="${o.img}" alt="candidate ${i+1}">`;
+    t.onclick = ()=>selectTile(o,t); grid.appendChild(t);
+  });
+  byId('pickbar').innerHTML = 'Tap the bug you think it is'; byId('btnLock').disabled = true;
+  byId('pickslot').className = 'sq pickslot'; byId('pickslot').innerHTML = '<span class="q">?</span>';
+}
+function selectTile(o,el){
+  pick=o; document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('sel', t===el));
+  byId('pickbar').innerHTML = `Your pick: <b>${o.name}</b>`; byId('btnLock').disabled=false;
+  const slot = byId('pickslot'); slot.classList.add('filled');   // zoom into the spotlight
+  slot.innerHTML = `<img class="zoom" src="${o.img}" alt="your pick">`;
+}
+
+/* ── the AI-thinking theater (skippable) ──────────────────────────────────── */
+let atCancel = false;
+const sleep = ms => new Promise(r=>{ const t0=setTimeout(r,ms);
+  (function watch(){ if(atCancel){ clearTimeout(t0); r(); } else if(document.getElementById('aithink').classList.contains('on')) requestAnimationFrame(watch); })(); });
+async function runAIThink(){
+  atCancel = false;
+  const zoom = byId('atZoom'), zimg = zoom.querySelector('img'), trait = byId('atTrait'),
+        pickEl = byId('atPick'), curtain = byId('atCurtain'), nameEl = byId('atName'),
+        status = byId('atStatus');
+  zoom.className = 'at-zoom'; trait.className = 'at-trait'; pickEl.className = 'at-pick';
+  curtain.className = 'at-curtain'; status.style.opacity = 1;
+  nameEl.innerHTML = answer.name.split(' ').map(w=>`<b>${esc(w)}</b>`).join('');
+  show('aithink');
+  const order = [...options.filter(o=>o.key!==PUZZLE.aiAnswer), answer];   // the match goes last
+  for (let j=0;j<order.length && !atCancel;j++){
+    const c = order[j], keep = c.key===PUZZLE.aiAnswer;
+    zimg.src = c.img; trait.textContent = c.trait || '';
+    zoom.style.setProperty('--ox', (j%2 ? 46 : -46)+'px');           // alternate sides
+    zoom.className = 'at-zoom'; void zoom.offsetWidth;               // reset transition
+    zoom.classList.add('in'); await sleep(340);
+    trait.classList.add('show'); await sleep(1150);
+    trait.classList.remove('show');
+    if (keep) zoom.classList.add('keep');                            // kept — drifts up to the mystery
+    else { zoom.style.setProperty('--fx', (j%2? -1:1)*(260+Math.random()*120)+'px');
+           zoom.style.setProperty('--fy', (Math.random()*260-140)+'px');
+           zoom.style.setProperty('--fr', Math.round(Math.random()*80-40)+'deg');
+           zoom.classList.add('out'); }                              // rejected — flung away
+    await sleep(keep?650:420);
+  }
+  if (!atCancel) await sleep(420);                                   // a held breath — just rain
+  status.style.opacity = 0;
+  pickEl.classList.add('show'); await sleep(500);                    // robot + curtained card
+  curtain.classList.add('open'); await sleep(850);                   // the reveal
+  const words = nameEl.querySelectorAll('b');
+  for (const w of words){ w.classList.add('on'); if(!atCancel) await sleep(380); }
+  if (!atCancel) await sleep(900);
+  reveal();
+}
+function toReason(){
+  byId('reasonImg').src = pick.img; byId('reasonName').textContent = pick.name;
+  byId('reasonText').value=''; byId('reasonErr').textContent=''; show('reason'); byId('reasonText').focus();
+}
+async function submitReason(){
+  const reason = byId('reasonText').value.trim();
+  const who = byId('reasonWho').value.trim(), handle = byId('reasonHandle').value.trim().replace(/^@/,'');
+  const err = checkText(reason + ' ' + who + ' ' + handle);
+  if (err) { byId('reasonErr').textContent = err; return; }
+  byId('btnSubmit').disabled = true; byId('btnSubmit').textContent = 'Submitting…';
+  const row = { puzzle:PUZZLE_ID, pick:pick.key, reason, name: who || 'Guest', handle: handle || null, verified:false };
+  const saved = await saveReason(row); myRowId = saved.id;
+  byId('btnSubmit').disabled = false; byId('btnSubmit').textContent = 'Submit & see everyone’s answers';
+  runAIThink();
+}
+
+/* ── result + community feed ──────────────────────────────────────────────── */
+async function reveal(){
+  /* the AI drama already played out on the thinking screen — land the verdict promptly */
+  const agree = pick.key===PUZZLE.aiAnswer;
+  byId('youImg').src = pick.img; byId('youName').textContent = pick.name;
+  ['aiSq','aiName','subq','tell','feed','resultActions','foot'].forEach(id=>byId(id).classList.remove('show'));
+  const v = byId('verdict'); v.className='verdict'; byId('think').style.display='none'; show('result');
+  setTimeout(()=>{ byId('aiSq').classList.add('show'); byId('aiName').classList.add('show'); }, 150);
+  setTimeout(()=>{ v.textContent = agree ? '✓ You agree with the AI!' : 'You and the AI disagree';
+    v.classList.add(agree?'agree':'disagree','show'); byId('subq').classList.add('show'); }, 550);
+  setTimeout(()=>byId('tell').classList.add('show'), 1000);
+  setTimeout(async ()=>{ await renderFeed(); byId('feed').classList.add('show');
+    byId('resultActions').classList.add('show'); byId('foot').classList.add('show'); }, 1400);
+}
+async function renderFeed(){
+  let rows = await fetchReasons();
+  // build the identification list: pinned participants + the crowd (sorted by agrees)
+  const crowd = rows.filter(r=>!r.hidden).map(r=>({ id:r.id, who:r.name||'Guest', handle:r.handle,
+    pick:r.pick, reason:r.reason, agrees:r.agree_count||0, verified:r.verified,
+    mine:r.id===myRowId }));
+  // tally leading pick across pinned + crowd (weight by 1 each; agrees add weight)
+  const tally = {};
+  [...PINNED.map(p=>({pick:p.pick,agrees:0})), ...crowd].forEach(r=>{ tally[r.pick]=(tally[r.pick]||0)+1+(r.agrees||0); });
+  const leadKey = Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0];
+  byId('leading').innerHTML = leadKey ? `Leading answer so far: <b>${esc(nameOf(leadKey))}</b>` : '';
+
+  const agreed = lsGet(AG);
+  const card = (r, kind) => {
+    const initial = (r.who||'?').trim().charAt(0).toUpperCase() || '?';
+    const av = kind==='ai'
+      ? `<div class="av ai"><svg viewBox="0 0 200 200"><line x1="100" y1="42" x2="100" y2="24" stroke="#06231c" stroke-width="8"/><circle cx="100" cy="18" r="9" fill="#06231c"/><rect x="40" y="48" width="120" height="100" rx="24" fill="none" stroke="#06231c" stroke-width="10"/><circle cx="80" cy="94" r="10" fill="#06231c"/><circle cx="120" cy="94" r="10" fill="#06231c"/><rect x="78" y="122" width="44" height="9" rx="4.5" fill="#06231c"/></svg></div>`
+      : `<div class="av ${kind==='finder'?'finder':''}">${esc(initial)}</div>`;
+    const badge = kind==='ai' ? '<span class="badge ai">AI</span>'
+      : kind==='finder' ? '<span class="badge finder">Finder</span>'
+      : r.verified ? '<span class="badge verified">✓</span>' : '<span class="badge">Guest</span>';
+    const handle = r.handle ? ` <span style="color:var(--mut);font-size:15px">@${esc(r.handle)}</span>` : '';
+    const canAct = kind==='crowd';
+    const isAgreed = agreed.includes(r.id);
+    const agrees = (r.agrees||0);
+    const actions = canAct
+      ? `<div class="row"><button class="agr ${isAgreed?'on':''}" data-id="${r.id}">👍 Agree${agrees?` · ${agrees}`:''}</button>${r.mine?'<span style="color:var(--mut);font-size:14px">your answer</span>':`<button class="flag" data-flag="${r.id}" title="Report">⚑</button>`}</div>`
+      : '';
+    return `<div class="idcard">${av}<div class="body"><div class="top"><span class="who2">${esc(r.who)}</span>${handle}${badge}</div>
+      <div class="picked">picked <b>${esc(nameOf(r.pick))}</b></div>
+      ${r.reason?`<div class="reason">“${esc(r.reason)}”</div>`:''}${actions}</div></div>`;
+  };
+  const html = [
+    card(PINNED[0],'ai'), card(PINNED[1],'finder'),
+    ...crowd.sort((a,b)=>b.agrees-a.agrees).map(r=>card(r,'crowd')),
+  ].join('');
+  byId('idlist').innerHTML = html;
+  byId('idlist').querySelectorAll('.agr').forEach(b=>b.onclick = ()=>doAgree(b.dataset.id, b));
+  byId('idlist').querySelectorAll('.flag').forEach(b=>b.onclick = ()=>doReport(b.dataset.flag, b));
+}
+async function doAgree(id, btn){
+  const agreed = lsGet(AG); if (agreed.includes(id)) return;
+  agreed.push(id); lsSet(AG, agreed); btn.classList.add('on');
+  const n = (parseInt((btn.textContent.split('·')[1]||'0'))||0)+1; btn.textContent = `👍 Agree · ${n}`;
+  await agreeReason(id);
+}
+async function doReport(id, btn){
+  if (!confirm('Report this answer to the Buggy Bros?')) return;
+  btn.textContent='✓'; btn.disabled=true; await reportReason(id);
+}
+
+async function share(){
+  const data = { title:'The Buggy Bros — Match Game', text:'Can you match this mystery bug? I just played 🐛', url: location.href };
+  try { if (navigator.share){ await navigator.share(data); return; } } catch(e){ return; }
+  try { await navigator.clipboard.writeText(location.href); byId('btnShare').textContent='Link copied!'; } catch(e){}
+}
+
+byId('btnStart').onclick = ()=>show('board');
+byId('btnSkip').onclick = ()=>{ atCancel = true; };
+byId('btnLock').onclick = ()=>{ if(pick) toReason(); };
+byId('btnBackBoard').onclick = ()=>show('board');
+byId('btnSubmit').onclick = submitReason;
+byId('btnAgain').onclick = ()=>{ buildBoard(); show('board'); };
+byId('btnShare').onclick = share;
+addEventListener('keydown', e=>{
+  if (byId('board').classList.contains('on') && e.key>='1' && e.key<='4'){ const el=document.querySelectorAll('.tile')[+e.key-1]; if(el) el.click(); }
+  else if (byId('board').classList.contains('on') && e.key==='Enter' && pick) toReason();
+});
+buildBoard();
+</script>
+</body></html>
