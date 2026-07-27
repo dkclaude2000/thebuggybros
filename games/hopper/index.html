@@ -1,0 +1,231 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Hopper — The Buggy Bros</title>
+<meta name="description" content="Hold to crouch, release to LEAP. Real grasshoppers jump 20× their body length — can you?">
+<meta property="og:title" content="Hopper — The Buggy Bros">
+<meta property="og:description" content="Hold to crouch, release to LEAP. Real grasshoppers jump 20× their body length — can you?">
+<meta property="og:url" content="https://thebuggybros.com/games/hopper/">
+<link rel="canonical" href="https://thebuggybros.com/games/hopper/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='31' y='17' width='38' height='14' rx='2' fill='%23f4b53f'/%3E%3Cpath d='M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z' fill='none' stroke='%2338cba7' stroke-width='5'/%3E%3Cellipse cx='50' cy='59' rx='8' ry='10' fill='%2338cba7'/%3E%3Ccircle cx='50' cy='45' r='5' fill='%23f4b53f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#080b0f;font-family:"Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#c{display:block;width:100vw;height:100dvh;touch-action:none}
+.hud{position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top));display:flex;
+  justify-content:space-between;padding:0 16px;pointer-events:none;
+  font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.08em;color:#8496a0}
+.hud b{color:#38cba7;font-weight:600}
+.hud .r b{color:#f4b53f}
+#home{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.1em;color:#4a5964;
+  text-decoration:none;padding:8px}
+#home:hover{color:#8496a0}
+</style></head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><span>hop <b id="hDist">0×</b> body length</span><span class="r">best <b id="hBest">0×</b></span></div>
+<a id="home" href="/games/">← games</a>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOPPER — one button. Hold: crouch, legs fold, power builds. Release: legs
+   EXTEND and you leap. The educational hook is real: a grasshopper's catapult
+   legs launch it ~20× its body length. Distance is scored in body lengths.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W, H, DPR;
+function fit(){ DPR = Math.min(2, devicePixelRatio||1);
+  W = innerWidth; H = innerHeight; cv.width = W*DPR; cv.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0); }
+addEventListener('resize', fit); fit();
+
+const BL = Math.max(34, Math.min(48, W/9));       // one body length, px (scales to screen)
+const TEAL='#38cba7', AMBER='#f4b53f', INK='#eef2f3', MUT='#8496a0';
+
+/* ── world ── */
+let pads, px, py, vx, vy, state, charge, camX, farthest, jumpStartX, lastLeap, best, tPrev, tGlobal=0, deadT=0;
+best = +(localStorage.getItem('bb-hopper-best')||0);
+function pad(x,w){ return { x, w, y: H*0.62 + (Math.random()*2-1)*H*0.11 }; }
+function reset(){
+  pads = [ { x:-BL*4, w: BL*8, y: H*0.62 } ];
+  while (pads[pads.length-1].x < W*3) addPad();
+  px = 0; py = pads[0].y; vx = 0; vy = 0; state = 'ground';   // ground | charge | air | dead
+  charge = 0; camX = -W*0.3; farthest = 0; jumpStartX = 0; lastLeap = 0;
+}
+function addPad(){
+  const p = pads[pads.length-1];
+  const diff = Math.min(1, pads.length/22);                    // slowly gets harder
+  const gap = BL*(2.2 + Math.random()*3.2 + diff*6);          // 2–11 body lengths
+  const w = BL*(2.6 + Math.random()*2.4 - diff*0.8);
+  const n = pad(p.x + p.w + gap, Math.max(BL*1.6, w));
+  n.y = Math.max(H*0.42, Math.min(H*0.78, p.y + (Math.random()*2-1)*H*0.14));
+  pads.push(n);
+}
+reset();
+
+/* ── input: one button, everywhere ── */
+function down(e){ if(e.cancelable) e.preventDefault();
+  if (state==='dead'){ if (performance.now()-deadT>500) reset(); return; }
+  if (state==='ground'){ state='charge'; charge=0; } }
+function up(e){ if(e.cancelable) e.preventDefault();
+  if (state==='charge'){                                       // legs EXTEND — launch!
+    const c = Math.min(1, charge);
+    vx = BL*(0.09 + 0.155*c); vy = -BL*(0.14 + 0.245*c);
+    state='air'; jumpStartX = px; chirp(0.2+0.5*c);
+  } }
+cv.addEventListener('pointerdown', down); cv.addEventListener('pointerup', up);
+addEventListener('keydown', e=>{ if(e.code==='Space'&&!e.repeat){ e.preventDefault(); down(e); } });
+addEventListener('keyup', e=>{ if(e.code==='Space'){ e.preventDefault(); up(e); } });
+
+/* ── tiny sounds (WebAudio, made on the fly) ── */
+let AC=null; function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+function chirp(v){ const a=ac(); if(!a) return; const o=a.createOscillator(), g=a.createGain();
+  o.type='square'; o.frequency.setValueAtTime(900+600*v, a.currentTime);
+  o.frequency.exponentialRampToValueAtTime(300, a.currentTime+0.12);
+  g.gain.setValueAtTime(0.06, a.currentTime); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime+0.14);
+  o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime+0.15); }
+function plop(){ const a=ac(); if(!a) return; const o=a.createOscillator(), g=a.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(300, a.currentTime);
+  o.frequency.exponentialRampToValueAtTime(70, a.currentTime+0.28);
+  g.gain.setValueAtTime(0.12, a.currentTime); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime+0.3);
+  o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime+0.3); }
+
+/* ── update ── */
+function step(dt){
+  tGlobal += dt;
+  if (state==='charge') charge = Math.min(1, charge + dt/1.05);
+  if (state==='air'){
+    vy += BL*0.0105*dt*60;                                     // gravity (framerate-safe)
+    px += vx*dt*60; py += vy*dt*60;
+    for (const p of pads){                                     // landing check
+      if (vy>0 && px>p.x && px<p.x+p.w && py>=p.y-2 && py<=p.y+BL*0.8){
+        py = p.y; vy=0; vx=0; state='ground';
+        lastLeap = (px - jumpStartX)/BL;
+        break;
+      }
+    }
+    if (py > H + BL){ state='dead'; deadT=performance.now(); plop();
+      best = Math.max(best, Math.round(farthest/BL)); localStorage.setItem('bb-hopper-best', best); }
+  }
+  farthest = Math.max(farthest, px);
+  camX += ((px - W*0.32) - camX)*Math.min(1, dt*5);
+  while (pads[pads.length-1].x < camX + W*2) addPad();
+  while (pads.length>30 && pads[1].x + pads[1].w < camX - W) pads.shift();
+  document.getElementById('hDist').textContent = Math.round(farthest/BL)+'×';
+  document.getElementById('hBest').textContent = best+'×';
+}
+
+/* ── draw ── */
+function reed(x, y, h, sway, col){
+  ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.lineCap='round'; ctx.beginPath();
+  ctx.moveTo(x, y); ctx.quadraticCurveTo(x + sway*0.4, y - h*0.6, x + sway, y - h); ctx.stroke();
+}
+function drawBG(){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0b1a19'); g.addColorStop(0.5,'#080b0f'); g.addColorStop(1,'#060809');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(56,203,167,.06)';
+  ctx.beginPath(); ctx.ellipse(W*0.5, 0, W*0.7, H*0.35, 0, 0, Math.PI*2); ctx.fill();
+  for (let i=0;i<14;i++){                                       // far reeds, parallax
+    const rx = ((i*W*0.19) - camX*0.25) % (W*1.4) - W*0.2;
+    reed(rx, H*0.95, H*(0.25+((i*97)%40)/100), 14*Math.sin(tGlobal*0.7+i), 'rgba(56,203,167,.10)');
+  }
+  ctx.fillStyle='rgba(20,60,70,.35)'; ctx.fillRect(0,H*0.93,W,H*0.07);   // the water
+  ctx.strokeStyle='rgba(56,203,167,.12)'; ctx.lineWidth=1.5;
+  for (let i=0;i<5;i++){ const wy=H*0.945+i*H*0.011; ctx.beginPath();
+    for (let x=0;x<=W;x+=24) (x?ctx.lineTo:ctx.moveTo).call(ctx, x, wy+3*Math.sin(x*0.03+tGlobal*2+i)); ctx.stroke(); }
+}
+function drawPads(){
+  for (const p of pads){
+    const x = p.x - camX;
+    if (x+p.w<-40||x>W+40) continue;
+    ctx.fillStyle='#12241f';                                    // the pad
+    ctx.beginPath(); ctx.roundRect(x, p.y, p.w, BL*0.42, 10); ctx.fill();
+    ctx.strokeStyle='rgba(56,203,167,.55)'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(x+4,p.y+1); ctx.lineTo(x+p.w-4,p.y+1); ctx.stroke();
+    for (let b=0;b<Math.floor(p.w/26);b++)                      // grass blades on top
+      reed(x+12+b*26, p.y+2, BL*(0.35+((b*53)%30)/100), 5*Math.sin(tGlobal+b), 'rgba(56,203,167,.35)');
+  }
+}
+function drawBug(){
+  const x = px - camX, squash = state==='charge' ? 1-0.22*Math.min(1,charge) : 1;
+  const y = py - BL*0.34*squash;
+  ctx.save(); ctx.translate(x, y);
+  if (state==='air') ctx.rotate(Math.max(-0.35, Math.min(0.45, vy*0.02)));
+  const s = BL/46;                                              // sprite scale
+  ctx.scale(s, s*squash);
+  ctx.lineCap='round';
+  /* HIND LEGS — the star of the show: folded when charging, extended in flight */
+  const fold = state==='charge' ? Math.min(1,charge) : 0, air = state==='air';
+  ctx.strokeStyle=AMBER; ctx.lineWidth=4.6;
+  for (const side of [-1,1]){
+    ctx.beginPath();
+    const hx=-6, hy=6;                                          // hip
+    let kx, ky, fx2, fy2;                                        // knee, foot
+    if (air){ kx=hx-16; ky=hy-2; fx2=kx-16; fy2=ky+16; }         // stretched back
+    else { kx=hx-8-4*fold; ky=hy-14+3*fold; fx2=hx+2-6*fold; fy2=hy+14-2*fold; } // folded spring
+    ctx.moveTo(hx, hy+side*2); ctx.lineTo(kx, ky+side*2); ctx.lineTo(fx2, fy2+side*2); ctx.stroke();
+  }
+  /* front + mid legs */
+  ctx.strokeStyle='#2ba88b'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(8,8); ctx.lineTo(13,16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(2,9); ctx.lineTo(4,17); ctx.stroke();
+  /* body */
+  ctx.fillStyle=TEAL;
+  ctx.beginPath(); ctx.ellipse(-2, 2, 17, 8.5, -0.08, 0, Math.PI*2); ctx.fill();   // abdomen+thorax
+  ctx.beginPath(); ctx.ellipse(13, -1, 7, 6.5, 0, 0, Math.PI*2); ctx.fill();       // head
+  ctx.fillStyle='#0a0f14'; ctx.beginPath(); ctx.arc(15.5, -2.5, 2.1, 0, Math.PI*2); ctx.fill(); // eye
+  ctx.strokeStyle=AMBER; ctx.lineWidth=2;                                          // antennae
+  ctx.beginPath(); ctx.moveTo(16,-5); ctx.quadraticCurveTo(24,-14,30,-16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(14,-6); ctx.quadraticCurveTo(19,-16,23,-20); ctx.stroke();
+  ctx.strokeStyle='rgba(10,15,20,.5)'; ctx.lineWidth=1.6;                          // wing line
+  ctx.beginPath(); ctx.moveTo(-14,0); ctx.lineTo(9,-1); ctx.stroke();
+  ctx.restore();
+  /* charge meter */
+  if (state==='charge'){
+    ctx.strokeStyle='rgba(255,255,255,.16)'; ctx.lineWidth=5;
+    ctx.beginPath(); ctx.arc(x, y-BL*1.15, BL*0.5, -Math.PI*0.9, Math.PI*-0.1); ctx.stroke();
+    ctx.strokeStyle=AMBER;
+    ctx.beginPath(); ctx.arc(x, y-BL*1.15, BL*0.5, -Math.PI*0.9, -Math.PI*0.9 + Math.PI*0.8*Math.min(1,charge)); ctx.stroke();
+  }
+  /* landing toast: how far was that leap? */
+  if (state==='ground' && lastLeap>0.5){
+    ctx.fillStyle='rgba(238,242,243,.85)'; ctx.font=`600 ${Math.round(BL*0.34)}px "IBM Plex Mono"`;
+    ctx.textAlign='center';
+    ctx.fillText(`${lastLeap.toFixed(1)}× leap`, x, y-BL*1.4);
+  }
+}
+function drawIntroOrDeath(){
+  ctx.textAlign='center';
+  if (farthest<BL*0.5 && state!=='dead' && state!=='air'){
+    ctx.fillStyle=INK; ctx.font=`700 ${Math.round(Math.min(40,W*0.07))}px "Space Grotesk"`;
+    ctx.fillText('HOPPER', W/2, H*0.2);
+    ctx.fillStyle=MUT; ctx.font=`500 ${Math.round(Math.min(19,W*0.045))}px "Space Grotesk"`;
+    ctx.fillText('Hold to crouch — release to LEAP', W/2, H*0.2+34);
+    ctx.fillStyle='rgba(244,181,63,.9)'; ctx.font=`500 ${Math.round(Math.min(15,W*0.038))}px "Space Grotesk"`;
+    ctx.fillText('Real grasshoppers jump 20× their body length', W/2, H*0.2+62);
+  }
+  if (state==='dead'){
+    ctx.fillStyle='rgba(8,11,15,.72)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=INK; ctx.font=`700 ${Math.round(Math.min(38,W*0.085))}px "Space Grotesk"`;
+    ctx.fillText('Splash!', W/2, H*0.34);
+    ctx.fillStyle=TEAL; ctx.font=`600 ${Math.round(Math.min(24,W*0.055))}px "IBM Plex Mono"`;
+    ctx.fillText(`${Math.round(farthest/BL)}× body lengths`, W/2, H*0.34+42);
+    ctx.fillStyle=MUT; ctx.font=`500 ${Math.round(Math.min(17,W*0.042))}px "Space Grotesk"`;
+    const bestLeap = lastLeap>0 ? `Your best single leap: ${lastLeap.toFixed(1)}×. ` : '';
+    ctx.fillText(bestLeap + 'A real grasshopper does 20× — every time.', W/2, H*0.34+76);
+    ctx.fillStyle=AMBER; ctx.font=`700 ${Math.round(Math.min(19,W*0.048))}px "Space Grotesk"`;
+    ctx.fillText('tap to hop again', W/2, H*0.34+118);
+  }
+}
+function loop(t){
+  const dt = Math.min(0.033, (t-(tPrev||t))/1000); tPrev = t;
+  if (state!=='dead') step(dt);
+  drawBG(); drawPads(); if (state!=='dead') drawBug(); drawIntroOrDeath();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body></html>

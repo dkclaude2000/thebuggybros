@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Buggy Bros — Games</title>
+<meta name="description" content="Little bug games from The Buggy Bros — match mystery bugs, jump like a grasshopper, and more.">
+<meta property="og:title" content="The Buggy Bros — Games">
+<meta property="og:description" content="Little bug games — match mystery bugs, jump like a grasshopper, and more.">
+<meta property="og:url" content="https://thebuggybros.com/games/">
+<link rel="canonical" href="https://thebuggybros.com/games/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='31' y='17' width='38' height='14' rx='2' fill='%23f4b53f'/%3E%3Cpath d='M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z' fill='none' stroke='%2338cba7' stroke-width='5'/%3E%3Cellipse cx='50' cy='59' rx='8' ry='10' fill='%2338cba7'/%3E%3Ccircle cx='50' cy='45' r='5' fill='%23f4b53f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;
+  --amber:#f4b53f;--teal:#38cba7}
+html,body{background:#080b0f;color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100%}
+body{background-image:radial-gradient(70% 40% at 50% 0%, rgba(56,203,167,.10), transparent 60%);
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:640px;margin:0 auto;padding:20px 20px 60px}
+.brand{display:flex;align-items:center;gap:12px;justify-content:center;padding:8px 0 6px}
+.brand svg{width:38px;height:38px;flex:none}
+.brand b{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.brand b span{color:var(--teal)}
+.kick{font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--teal);text-align:center;margin:14px 0 6px}
+h1{font-size:clamp(34px,9vw,50px);line-height:1.04;font-weight:700;letter-spacing:-.03em;text-align:center}
+h1 em{font-style:normal;color:var(--amber)}
+.lead{font-size:clamp(16px,4.2vw,19px);color:var(--mut);text-align:center;line-height:1.5;margin:14px auto 26px;max-width:430px}
+.games{display:flex;flex-direction:column;gap:16px}
+a.game{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:18px;text-decoration:none;color:var(--ink);
+  transition:transform .12s,border-color .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+a.game:hover{transform:translateY(-2px);border-color:#3d505b}
+a.game:active{transform:translateY(0)}
+.game .art{width:84px;height:84px;flex:none;border-radius:16px;background:#0e151b;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:44px}
+.game .art.teal{border-color:rgba(56,203,167,.4)}
+.game .art.amber{border-color:rgba(244,181,63,.4)}
+.game .body{flex:1;min-width:0}
+.game .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.game h2{font-size:21px;font-weight:700;letter-spacing:-.01em}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:6px;font-weight:600}
+.tag.live{background:rgba(56,203,167,.16);color:var(--teal)}
+.tag.new{background:rgba(244,181,63,.16);color:var(--amber)}
+.tag.soon{background:var(--line);color:var(--mut)}
+.game p{color:var(--mut);font-size:15.5px;line-height:1.45;margin-top:5px}
+.game .go{flex:none;color:var(--teal);font-size:22px;font-weight:700}
+.game.soon{opacity:.55;pointer-events:none}
+.foot{text-align:center;color:var(--mut);font-size:14px;padding-top:32px;line-height:1.8}
+.foot a{color:var(--teal);text-decoration:none;font-weight:600}
+</style></head>
+<body>
+<div class="wrap">
+  <a href="/" style="text-decoration:none;color:inherit"><div class="brand">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/>
+      <path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="none" stroke="#38cba7" stroke-width="5"/>
+      <ellipse cx="50" cy="59" rx="8" ry="10" fill="#38cba7"/><circle cx="50" cy="45" r="5" fill="#f4b53f"/>
+    </svg>
+    <b>The Buggy <span>Bros</span></b>
+  </div></a>
+
+  <div class="kick">The arcade</div>
+  <h1>Little <em>bug</em> games</h1>
+  <p class="lead">Quick games starring real bugs — every one sneaks in something true about how they live.</p>
+
+  <div class="games">
+    <a class="game" href="/play/">
+      <div class="art teal">🐞🤖</div>
+      <div class="body">
+        <div class="top"><h2>The Match Game</h2><span class="tag live">Live</span></div>
+        <p>A real mystery bug, four suspects. Make your pick — then see if you agree with the AI and everyone else.</p>
+      </div>
+      <div class="go">→</div>
+    </a>
+
+    <a class="game" href="/games/hopper/">
+      <div class="art amber">🦗</div>
+      <div class="body">
+        <div class="top"><h2>Hopper</h2><span class="tag new">New</span></div>
+        <p>Hold to crouch, release to LEAP. Real grasshoppers jump 20× their body length — can you?</p>
+      </div>
+      <div class="go">→</div>
+    </a>
+
+    <a class="game soon" href="#">
+      <div class="art">🐜</div>
+      <div class="body">
+        <div class="top"><h2>Bug Muncher</h2><span class="tag soon">Coming soon</span></div>
+        <p>A maze, a hungry beetle, and a hunting spider. Eat the aphids. Don't get eaten.</p>
+      </div>
+      <div class="go">→</div>
+    </a>
+
+    <a class="game soon" href="#">
+      <div class="art">✏️</div>
+      <div class="body">
+        <div class="top"><h2>Field Sketch</h2><span class="tag soon">Coming soon</span></div>
+        <p>Draw the bug from the photo, like a real field naturalist. Save your sketch to the notebook.</p>
+      </div>
+      <div class="go">→</div>
+    </a>
+  </div>
+
+  <div class="foot">
+    <a href="/">← the field cards</a> · <a href="https://instagram.com/thebuggybros" target="_blank" rel="noopener">@thebuggybros</a><br>
+    Got a game idea? Send it to us.
+  </div>
+</div>
+</body></html>

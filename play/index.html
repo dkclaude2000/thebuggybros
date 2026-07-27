@@ -127,6 +127,17 @@ textarea:focus,input:focus{outline:none;border-color:var(--teal)}
 .reveal-el{opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
 .reveal-el.show{opacity:1;transform:none}
 
+/* optional post-game composer — an invitation, never a gate */
+.joinin{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:24px}
+.joinin h3{font-size:15px;font-family:"IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.joinin h3 span{color:var(--mut);text-transform:none;letter-spacing:.02em}
+.joinq{color:var(--mut);font-size:17px;margin-bottom:12px}
+.joinq b{color:var(--ink)}
+.joinin .done{color:var(--teal);font-size:18px;font-weight:600;text-align:center;padding:10px 0}
+
+/* mobile feel: kill tap-highlight + double-tap zoom on controls */
+button,.tile,.agr,.flag{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
 /* ── board: spotlight pair + falling B&W logos (the show's language) ─────── */
 #board{position:relative;overflow:hidden}
 #board>*:not(.bbrain){position:relative;z-index:1}
@@ -225,24 +236,6 @@ textarea:focus,input:focus{outline:none;border-color:var(--teal)}
     <div class="actions"><button class="btn amber" id="btnLock" disabled>That's my pick →</button></div>
   </section>
 
-  <!-- REASON (commit before you can see anyone else's) -->
-  <section class="screen" id="reason">
-    <div class="kick">You picked</div>
-    <div class="sq amber pickshow"><img id="reasonImg" alt="your pick"></div>
-    <div class="name" id="reasonName" style="min-height:auto;margin-bottom:6px">—</div>
-    <div class="field"><label>Why? What made you say that?</label>
-      <textarea id="reasonText" maxlength="280" placeholder="e.g. The pinched waist looks the same…"></textarea>
-      <div class="hint">One line is plenty. You'll see everyone else's reasons after you submit.</div>
-    </div>
-    <div class="who">
-      <input type="text" id="reasonWho" maxlength="40" placeholder="First name (optional)">
-      <input type="text" id="reasonHandle" maxlength="40" placeholder="@handle (optional)">
-    </div>
-    <div class="err" id="reasonErr"></div>
-    <div class="actions"><button class="btn" id="btnSubmit">Submit &amp; see everyone's answers</button>
-      <button class="btn ghost" id="btnBackBoard">← change my pick</button></div>
-  </section>
-
   <!-- AI THINKING — the show's matrix theater: each candidate is weighed against the
        mystery, rejects fly off, the match is kept, then the curtain reveal. -->
   <section class="screen" id="aithink">
@@ -284,6 +277,19 @@ textarea:focus,input:focus{outline:none;border-color:var(--teal)}
       <h3>What everyone thinks</h3>
       <div class="leading" id="leading"></div>
       <div id="idlist"></div>
+    </div>
+
+    <!-- optional — nobody has to write anything to play -->
+    <div class="joinin reveal-el" id="joinin">
+      <h3>Add your voice <span>· totally optional</span></h3>
+      <div class="joinq">Why did you pick <b id="joinPick">—</b>?</div>
+      <textarea id="reasonText" maxlength="280" placeholder="e.g. The pinched waist looks the same…"></textarea>
+      <div class="who">
+        <input type="text" id="reasonWho" maxlength="40" placeholder="First name (optional)">
+        <input type="text" id="reasonHandle" maxlength="40" placeholder="@handle (optional)">
+      </div>
+      <div class="err" id="reasonErr"></div>
+      <button class="btn" id="btnPost" style="margin-top:10px">Post to the feed</button>
     </div>
 
     <div class="actions reveal-el" id="resultActions">
@@ -419,6 +425,7 @@ const JAR_MONO = c => `<svg viewBox="0 0 100 100"><rect x="31" y="17" width="38"
 byId('atRobot').innerHTML = ROBOT_SVG;
 
 /* ── game ─────────────────────────────────────────────────────────────────── */
+const JOININ_HTML = byId('joinin').innerHTML;   // snapshot so Play-Again can restore it
 function buildBoard(){
   pick=null; myRowId=null;
   const others = shuffle(PUZZLE.pool.filter(p=>p.key!==PUZZLE.aiAnswer)).slice(0,3);
@@ -433,6 +440,8 @@ function buildBoard(){
   });
   byId('pickbar').innerHTML = 'Tap the bug you think it is'; byId('btnLock').disabled = true;
   byId('pickslot').className = 'sq pickslot'; byId('pickslot').innerHTML = '<span class="q">?</span>';
+  byId('joinin').innerHTML = JOININ_HTML;   // restore the optional composer for a fresh round
+  byId('btnPost').onclick = postReason;
 }
 function selectTile(o,el){
   pick=o; document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('sel', t===el));
@@ -479,20 +488,17 @@ async function runAIThink(){
   if (!atCancel) await sleep(900);
   reveal();
 }
-function toReason(){
-  byId('reasonImg').src = pick.img; byId('reasonName').textContent = pick.name;
-  byId('reasonText').value=''; byId('reasonErr').textContent=''; show('reason'); byId('reasonText').focus();
-}
-async function submitReason(){
+/* Posting to the feed is OPTIONAL — offered after the reveal, never required to play. */
+async function postReason(){
   const reason = byId('reasonText').value.trim();
   const who = byId('reasonWho').value.trim(), handle = byId('reasonHandle').value.trim().replace(/^@/,'');
   const err = checkText(reason + ' ' + who + ' ' + handle);
   if (err) { byId('reasonErr').textContent = err; return; }
-  byId('btnSubmit').disabled = true; byId('btnSubmit').textContent = 'Submitting…';
+  const btn = byId('btnPost'); btn.disabled = true; btn.textContent = 'Posting…';
   const row = { puzzle:PUZZLE_ID, pick:pick.key, reason, name: who || 'Guest', handle: handle || null, verified:false };
   const saved = await saveReason(row); myRowId = saved.id;
-  byId('btnSubmit').disabled = false; byId('btnSubmit').textContent = 'Submit & see everyone’s answers';
-  runAIThink();
+  byId('joinin').innerHTML = '<div class="done">✓ You’re in the feed</div>';
+  await renderFeed();
 }
 
 /* ── result + community feed ──────────────────────────────────────────────── */
@@ -500,13 +506,14 @@ async function reveal(){
   /* the AI drama already played out on the thinking screen — land the verdict promptly */
   const agree = pick.key===PUZZLE.aiAnswer;
   byId('youImg').src = pick.img; byId('youName').textContent = pick.name;
-  ['aiSq','aiName','subq','tell','feed','resultActions','foot'].forEach(id=>byId(id).classList.remove('show'));
+  ['aiSq','aiName','subq','tell','feed','joinin','resultActions','foot'].forEach(id=>byId(id).classList.remove('show'));
+  byId('joinPick').textContent = pick.name;
   const v = byId('verdict'); v.className='verdict'; byId('think').style.display='none'; show('result');
   setTimeout(()=>{ byId('aiSq').classList.add('show'); byId('aiName').classList.add('show'); }, 150);
   setTimeout(()=>{ v.textContent = agree ? '✓ You agree with the AI!' : 'You and the AI disagree';
     v.classList.add(agree?'agree':'disagree','show'); byId('subq').classList.add('show'); }, 550);
   setTimeout(()=>byId('tell').classList.add('show'), 1000);
-  setTimeout(async ()=>{ await renderFeed(); byId('feed').classList.add('show');
+  setTimeout(async ()=>{ await renderFeed(); byId('feed').classList.add('show'); byId('joinin').classList.add('show');
     byId('resultActions').classList.add('show'); byId('foot').classList.add('show'); }, 1400);
 }
 async function renderFeed(){
@@ -568,14 +575,13 @@ async function share(){
 
 byId('btnStart').onclick = ()=>show('board');
 byId('btnSkip').onclick = ()=>{ atCancel = true; };
-byId('btnLock').onclick = ()=>{ if(pick) toReason(); };
-byId('btnBackBoard').onclick = ()=>show('board');
-byId('btnSubmit').onclick = submitReason;
+byId('btnLock').onclick = ()=>{ if(pick) runAIThink(); };
+byId('btnPost').onclick = postReason;
 byId('btnAgain').onclick = ()=>{ buildBoard(); show('board'); };
 byId('btnShare').onclick = share;
 addEventListener('keydown', e=>{
   if (byId('board').classList.contains('on') && e.key>='1' && e.key<='4'){ const el=document.querySelectorAll('.tile')[+e.key-1]; if(el) el.click(); }
-  else if (byId('board').classList.contains('on') && e.key==='Enter' && pick) toReason();
+  else if (byId('board').classList.contains('on') && e.key==='Enter' && pick) runAIThink();
 });
 buildBoard();
 </script>
