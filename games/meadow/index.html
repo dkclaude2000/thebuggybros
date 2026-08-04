@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Meadow Hunt — The Buggy Bros</title>
+<meta name="description" content="Walk the meadow from our theme song and find all 14 creatures — every one is real, and every card tells you something true.">
+<meta property="og:title" content="Meadow Hunt — The Buggy Bros">
+<meta property="og:description" content="Find all 14 creatures from the theme song.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='31' y='17' width='38' height='14' rx='2' fill='%23f4b53f'/%3E%3Cpath d='M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z' fill='none' stroke='%2338cba7' stroke-width='5'/%3E%3Cellipse cx='50' cy='59' rx='8' ry='10' fill='%2338cba7'/%3E%3Ccircle cx='50' cy='45' r='5' fill='%23f4b53f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#0d1218;font-family:"Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;touch-action:none;-webkit-user-select:none;user-select:none}
+canvas{display:block}
+.ui{position:fixed;inset:0;pointer-events:none}
+/* collection tracker */
+#tracker{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;background:rgba(13,18,24,.72);border:1px solid #26333c;border-radius:999px;
+  padding:7px 12px;backdrop-filter:blur(6px)}
+#tracker span{font-size:17px;filter:grayscale(1);opacity:.38;transition:all .3s}
+#tracker span.on{filter:none;opacity:1;transform:scale(1.12)}
+/* find prompt */
+#prompt{position:fixed;left:50%;bottom:calc(120px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:#f4b53f;color:#241d10;font-weight:700;font-size:16px;border:none;border-radius:999px;
+  padding:13px 24px;display:none;pointer-events:auto;box-shadow:0 6px 22px rgba(0,0,0,.35);cursor:pointer;
+  font-family:inherit}
+#prompt.show{display:block;animation:pop .18s ease-out}
+@keyframes pop{from{transform:translateX(-50%) scale(.8)}to{transform:translateX(-50%) scale(1)}}
+/* field card */
+#cardWrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(8,11,15,.55);pointer-events:auto;z-index:30}
+#cardWrap.show{display:flex}
+#card{width:min(330px,86vw);background:#f7f1e0;border-radius:18px;overflow:hidden;color:#1e2a26;
+  box-shadow:0 24px 70px rgba(0,0,0,.5);animation:cardIn .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes cardIn{from{transform:translateY(46px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+#card .head{background:#123a30;color:#fff;padding:13px 16px;display:flex;gap:11px;align-items:center}
+#card .head .jar{width:34px;height:34px;flex:none}
+#card .head b{font-size:19px;letter-spacing:-.01em;display:block}
+#card .head i{font-style:italic;font-size:12.5px;color:#38cba7}
+#card .pic{font-size:58px;text-align:center;padding:16px 0 6px}
+#card .rare{margin:4px 16px;display:inline-block;background:#f4b53f;color:#241d10;font-weight:700;
+  font-size:12px;border-radius:999px;padding:4px 12px;font-family:"IBM Plex Mono",monospace}
+#card .fact{padding:8px 16px 4px;font-size:15px;line-height:1.5}
+#card .fact b{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;color:#8a8471;display:block;margin-bottom:3px}
+#card .foot{display:flex;justify-content:space-between;padding:10px 16px 13px;font-size:12.5px;color:#8a8471;
+  font-family:"IBM Plex Mono",monospace}
+#card .foot .at{color:#1f8a70;font-weight:600}
+#cardBtn{display:block;margin:2px 16px 16px;width:calc(100% - 32px);background:#38cba7;color:#0d1218;
+  font-weight:700;font-size:15px;border:none;border-radius:12px;padding:12px;cursor:pointer;font-family:inherit}
+/* banners */
+#toast{position:fixed;top:calc(64px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+  background:rgba(13,18,24,.85);border:1px solid #38cba7;color:#eef2f3;border-radius:14px;
+  padding:11px 18px;font-size:15px;max-width:86vw;text-align:center;display:none;z-index:20}
+#toast.show{display:block;animation:pop2 .3s}
+@keyframes pop2{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%)}}
+/* start + win overlays */
+.overlay{position:fixed;inset:0;background:rgba(8,11,15,.78);display:flex;align-items:center;justify-content:center;
+  z-index:40;pointer-events:auto}
+.panel{text-align:center;color:#eef2f3;max-width:min(420px,88vw)}
+.panel .kick{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#38cba7;margin-bottom:8px}
+.panel h1{font-size:clamp(34px,9vw,52px);letter-spacing:-.02em;line-height:1.02}
+.panel h1 em{font-style:normal;color:#f4b53f}
+.panel p{color:#a8b8c0;font-size:16px;line-height:1.55;margin:14px 0 22px}
+.panel button{background:#f4b53f;color:#241d10;font-weight:700;font-size:18px;border:none;border-radius:999px;
+  padding:15px 38px;cursor:pointer;font-family:inherit;box-shadow:0 8px 30px rgba(244,181,63,.25)}
+.panel .hint{font-size:13px;color:#8496a0;margin-top:16px;font-family:"IBM Plex Mono",monospace}
+/* touch joystick */
+#stick{position:fixed;width:118px;height:118px;border-radius:50%;border:2px solid rgba(255,255,255,.28);
+  background:rgba(13,18,24,.3);display:none;z-index:15}
+#nub{position:absolute;left:50%;top:50%;width:52px;height:52px;border-radius:50%;
+  background:rgba(56,203,167,.85);transform:translate(-50%,-50%)}
+#hint{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+  color:rgba(238,242,243,.5);font-size:12.5px;font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+/* touch action buttons */
+.abtn{position:fixed;right:calc(16px + env(safe-area-inset-right));width:60px;height:60px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.3);background:rgba(13,18,24,.55);color:#eef2f3;font-size:24px;
+  display:none;align-items:center;justify-content:center;pointer-events:auto;z-index:16;
+  -webkit-tap-highlight-color:transparent}
+.touch .abtn{display:flex}
+#btnJump{bottom:calc(96px + env(safe-area-inset-bottom))}
+#btnFly{bottom:calc(168px + env(safe-area-inset-bottom))}
+#btnUp,#btnDown{display:none}
+#btnUp.vis,#btnDown.vis{display:flex}
+#btnUp{bottom:calc(240px + env(safe-area-inset-bottom))}
+#btnDown{bottom:calc(24px + env(safe-area-inset-bottom))}
+</style></head>
+<body>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+}}
+</script>
+<div class="ui">
+  <div id="tracker"></div>
+  <button id="prompt">👀 Look closer</button>
+  <div id="toast"></div>
+  <div id="stick"><div id="nub"></div></div>
+  <div id="hint"></div>
+  <button class="abtn" id="btnJump">⤒</button>
+  <button class="abtn" id="btnFly">🪽</button>
+  <button class="abtn" id="btnUp">▲</button>
+  <button class="abtn" id="btnDown">▼</button>
+</div>
+<div id="cardWrap"><div id="card"></div></div>
+<div class="overlay" id="startOverlay"><div class="panel">
+  <div class="kick">The Buggy Bros</div>
+  <h1>Meadow <em>Hunt</em></h1>
+  <p>Walk the meadow from our theme song and find all <b>14 creatures</b>.
+  They're small, so get close and look closely — every card tells you something true.</p>
+  <button id="startBtn">Start exploring</button>
+  <div class="hint" id="startHint"></div>
+</div></div>
+<script type="module" src="./js/game.js"></script>
+</body></html>
