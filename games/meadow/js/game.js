@@ -5,6 +5,7 @@ import { mulberry32, clamp, lerp } from './util.js';
 import * as W from './world.js';
 import * as BUGS from './bugs.js';
 import { makeBros } from './bros.js';
+import { runMiniGame, MINIGAME_KEYS } from './minigames.js';
 
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
@@ -150,6 +151,42 @@ scene.add(mantisRock);
 const log = W.makeLog(2.8, 0.5);
 log.position.set(3.2, 0.28, -7);
 scene.add(log);
+// arcade signposts — games you discover by walking the meadow
+const SIGNS = [
+  { key: 'hopper', title: 'Hopper', url: '/games/hopper/', x: 6.7, z: 5.4, emoji: '🕹️' },
+];
+const signMeshes = {};
+for (const sg of SIGNS) {
+  const g = new THREE.Group();
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.85, 8), W.mat(0x9a7248));
+  post.position.y = 0.42;
+  g.add(post);
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 128;
+  const x = c.getContext('2d');
+  x.fillStyle = '#16352c';
+  x.fillRect(0, 0, 256, 128);
+  x.strokeStyle = '#f4b53f'; x.lineWidth = 8; x.strokeRect(6, 6, 244, 116);
+  x.fillStyle = '#f4efe2';
+  x.font = '700 52px "Space Grotesk", sans-serif';
+  x.textAlign = 'center';
+  x.fillText(sg.title.toUpperCase(), 128, 62);
+  x.font = '600 30px "Space Grotesk", sans-serif';
+  x.fillStyle = '#f4b53f';
+  x.fillText('▶ a game!', 128, 102);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const board = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.4),
+    new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, side: THREE.DoubleSide }));
+  board.position.y = 0.85;
+  g.add(board);
+  g.position.set(sg.x, 0, sg.z);
+  g.userData.board = board;
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  scene.add(g);
+  signMeshes[sg.key] = g;
+}
+
 const perchTwig = W.makeTwig(1.8, 0.06);
 perchTwig.position.set(-4.8, 0.7, -0.6);
 perchTwig.rotation.y = 1.1;
@@ -332,6 +369,7 @@ let flying = false;
 let lastSpaceTap = -9;
 let wantJump = false;
 addEventListener('keydown', (e) => {
+  if (gameOverlay || document.querySelector('.mg-wrap')) return; // an embedded game owns the keyboard
   keys[e.code] = true;
   if ((e.code === 'KeyE' || e.code === 'Enter') && !e.repeat) action();
   if (e.code === 'KeyF' && !e.repeat) toggleFly();
@@ -416,14 +454,26 @@ for (const [id, downFn, upFn] of [
 // ------------------------------------------------------------------
 // UI
 // ------------------------------------------------------------------
+let scarabPhase = 0;      // 0 = hidden, 1 = revealed, 2 = found
+let finaleStarted = false;
 const found = new Set();
+try {
+  for (const k of JSON.parse(localStorage.getItem('mh-found') || '[]')) {
+    if (CREATURES.some(c => c.key === k)) found.add(k);
+  }
+} catch (e) {}
+function saveFound() {
+  try { localStorage.setItem('mh-found', JSON.stringify([...found])); } catch (e) {}
+}
 const tracker = document.getElementById('tracker');
 for (const c of CREATURES) {
   const s = document.createElement('span');
   s.id = 'tk-' + c.key;
   s.textContent = c.emoji;
+  if (found.has(c.key)) s.classList.add('on');
   tracker.appendChild(s);
 }
+if (found.size === CREATURES.length) { finaleStarted = true; scarabPhase = 1; }
 const promptEl = document.getElementById('prompt');
 promptEl.addEventListener('click', () => action());
 const toastEl = document.getElementById('toast');
@@ -453,10 +503,16 @@ function showCard(c, idx) {
     ${c.rare ? '<span class="rare">★ RARE FIND</span>' : ''}
     <div class="fact"><b>One strange fact</b>${c.fact}</div>
     <div class="foot"><span class="at">@thebuggybros</span><span>${idx} · MEADOW</span></div>
+    ${MINIGAME_KEYS.includes(c.key) ? `<button id="cardPlay">▶ Play its game</button>` : ''}
     <button id="cardBtn">${c.rare ? 'Amazing!' : 'Keep looking'}</button>`;
   cardWrap.classList.add('show');
   cardOpenAt = performance.now();
   document.getElementById('cardBtn').addEventListener('click', closeCard);
+  const pb = document.getElementById('cardPlay');
+  if (pb) pb.addEventListener('click', () => {
+    cardWrap.classList.remove('show');
+    playCreatureGame(c.key);
+  });
 }
 function closeCard() {
   if (performance.now() - cardOpenAt < 500) return;
@@ -490,15 +546,72 @@ function chime(rare = false) {
 // Find logic
 // ------------------------------------------------------------------
 let nearKey = null;
-let scarabPhase = 0; // 0 = hidden, 1 = revealed, 2 = found
 function findablePos(key) {
   const o = actors[key];
   if (o.findPos) return o.findPos;
   return o.position;
 }
+function playCreatureGame(key) {
+  running = false;
+  runMiniGame(key, (result) => {
+    running = true;
+    last = performance.now();
+    if (result) {
+      try {
+        const best = JSON.parse(localStorage.getItem('mh-scores') || '{}');
+        if (!best[key] || result.score > best[key]) {
+          best[key] = result.score;
+          localStorage.setItem('mh-scores', JSON.stringify(best));
+        }
+      } catch (e) {}
+      toast(result.line, 6500);
+    }
+    if (found.size === CREATURES.length && !finaleStarted) startFinale();
+  });
+}
+
+let gameOverlay = null;
+function openGame(sg) {
+  if (gameOverlay) return;
+  running = false;
+  gameOverlay = document.createElement('div');
+  gameOverlay.style.cssText = 'position:fixed;inset:0;z-index:60;background:#0d1218;display:flex;flex-direction:column';
+  gameOverlay.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#123a30">
+      <b style="color:#eef2f3;font-size:15px">${sg.emoji} ${sg.title}</b>
+      <button id="gClose" style="background:#f4b53f;color:#241d10;border:none;border-radius:999px;
+        padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">✕ Back to the meadow</button>
+    </div>
+    <iframe src="${sg.url}" style="flex:1;border:0;width:100%" allow="fullscreen"></iframe>`;
+  document.body.appendChild(gameOverlay);
+  // hand keyboard control to the embedded game (else Space/arrows stay with the meadow)
+  const fr = gameOverlay.querySelector('iframe');
+  const focusGame = () => { try { fr.contentWindow.focus(); } catch (e) {} fr.focus(); };
+  fr.addEventListener('load', () => setTimeout(focusGame, 60));
+  setTimeout(focusGame, 400);
+  gameOverlay.addEventListener('pointerdown', (e) => { if (e.target === fr) focusGame(); });
+  gameOverlay.querySelector('#gClose').addEventListener('click', () => {
+    gameOverlay.remove();
+    gameOverlay = null;
+    running = true;
+    last = performance.now();
+    toast('Back in the meadow 🐞', 2200);
+  });
+}
+
 function action() {
   if (cardWrap.classList.contains('show')) { closeCard(); return; }
   if (!nearKey) return;
+  if (nearKey.startsWith('sign:')) {
+    const sg = SIGNS.find(s => s.key === nearKey.slice(5));
+    if (sg) openGame(sg);
+    return;
+  }
+  // already-found creature → replay its game
+  if (found.has(nearKey) && MINIGAME_KEYS.includes(nearKey)) {
+    playCreatureGame(nearKey);
+    return;
+  }
   if (nearKey === 'scarab') {
     scarabPhase = 2;
     chime(true);
@@ -512,6 +625,7 @@ function action() {
   const c = CREATURES.find(x => x.key === nearKey);
   if (!c || found.has(c.key)) return;
   found.add(c.key);
+  saveFound();
   document.getElementById('tk-' + c.key).classList.add('on');
   chime();
   showCard(c, `${found.size} / ${CREATURES.length}`);
@@ -520,7 +634,6 @@ function action() {
   promptEl.classList.remove('show');
 }
 
-let finaleStarted = false;
 let finaleT0 = 0;
 function startFinale() {
   finaleStarted = true;
@@ -639,6 +752,11 @@ function frame(now) {
     actors.scarab.userData._won = true;
     winMoment();
   }
+  for (const sg of SIGNS) {
+    const m = signMeshes[sg.key];
+    m.userData.board.position.y = 0.85 + Math.sin(t * 1.6) * 0.015;
+    m.rotation.y = Math.atan2(camera.position.x - sg.x, camera.position.z - sg.z);
+  }
   for (const [i, f] of finFlies.entries()) {
     if (!f.visible) continue;
     const ph = i * 1.3;
@@ -650,7 +768,6 @@ function frame(now) {
   // --- proximity prompt
   let best = null, bestD = 1e9;
   for (const c of CREATURES) {
-    if (found.has(c.key)) continue;
     const d = pp.distanceTo(findablePos(c.key));
     if (d < bestD) { bestD = d; best = c.key; }
   }
@@ -658,12 +775,23 @@ function frame(now) {
     const d = pp.distanceTo(actors.scarab.position);
     if (d < bestD) { bestD = d; best = 'scarab'; }
   }
+  for (const sg of SIGNS) {
+    const d = Math.hypot(pp.x - sg.x, pp.z - sg.z);
+    if (d < bestD) { bestD = d; best = 'sign:' + sg.key; }
+  }
   const reach = best === 'dragonfly' || best === 'butterfly' || best === 'bee' ? 2.2 : 1.8;
   if (best && bestD < reach && !cardWrap.classList.contains('show')) {
     if (nearKey !== best) {
       nearKey = best;
-      const emoji = best === 'scarab' ? '🌈' : CREATURES.find(x => x.key === best).emoji;
-      promptEl.textContent = `👀 Look closer ${IS_TOUCH ? '' : '(E)'}`;
+      if (best.startsWith('sign:')) {
+        const sg = SIGNS.find(s => s.key === best.slice(5));
+        promptEl.textContent = `${sg.emoji} Play ${sg.title} ${IS_TOUCH ? '' : '(E)'}`;
+      } else if (found.has(best)) {
+        const c = CREATURES.find(x => x.key === best);
+        promptEl.textContent = `${c.emoji} Play its game ${IS_TOUCH ? '' : '(E)'}`;
+      } else {
+        promptEl.textContent = `👀 Look closer ${IS_TOUCH ? '' : '(E)'}`;
+      }
       promptEl.classList.add('show');
     }
   } else if (nearKey) {
@@ -671,8 +799,15 @@ function frame(now) {
     promptEl.classList.remove('show');
   }
 
-  // player looks at the nearby creature
-  if (nearKey) player.lookAtWorld(findablePos(nearKey === 'scarab' ? 'scarab' : nearKey), 0.6);
+  // player looks at the nearby creature or signpost
+  if (nearKey) {
+    if (nearKey.startsWith('sign:')) {
+      const sg = SIGNS.find(s => s.key === nearKey.slice(5));
+      player.lookAtWorld(V3(sg.x, 0.9, sg.z), 0.6);
+    } else {
+      player.lookAtWorld(findablePos(nearKey === 'scarab' ? 'scarab' : nearKey), 0.6);
+    }
+  }
   player.idle(t);
   buddy.idle(t + 0.7);
 
@@ -704,6 +839,11 @@ addEventListener('resize', () => {
 document.getElementById('startHint').textContent = IS_TOUCH
   ? 'Left side: walk. Right side: look around. Tap the button when something looks interesting.'
   : 'WASD/arrows: walk · click-drag: look around · Space: jump · double-Space: fly · E: look closer';
+if (found.size > 0 && found.size < CREATURES.length) {
+  document.getElementById('startBtn').textContent = `Keep exploring — ${found.size}/${CREATURES.length} found`;
+} else if (found.size === CREATURES.length) {
+  document.getElementById('startBtn').textContent = 'Return to the meadow';
+}
 document.getElementById('startBtn').addEventListener('click', () => {
   document.getElementById('startOverlay').remove();
   AC = new (window.AudioContext || window.webkitAudioContext)();

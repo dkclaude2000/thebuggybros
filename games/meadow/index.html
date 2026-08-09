@@ -47,6 +47,32 @@ canvas{display:block}
 #card .foot .at{color:#1f8a70;font-weight:600}
 #cardBtn{display:block;margin:2px 16px 16px;width:calc(100% - 32px);background:#38cba7;color:#0d1218;
   font-weight:700;font-size:15px;border:none;border-radius:12px;padding:12px;cursor:pointer;font-family:inherit}
+#cardPlay{display:block;margin:8px 16px 6px;width:calc(100% - 32px);background:#f4b53f;color:#241d10;
+  font-weight:700;font-size:15px;border:none;border-radius:12px;padding:12px;cursor:pointer;font-family:inherit}
+/* mini-game shell */
+.mg-wrap{position:fixed;inset:0;z-index:70;background:rgba(8,11,15,.9);display:flex;align-items:center;
+  justify-content:center;padding:14px;pointer-events:auto}
+.mg-panel{position:relative;width:min(720px,100%);max-height:100%;background:#0d1218;border:1px solid #26333c;
+  border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+.mg-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#123a30;flex:none}
+.mg-head b{font-size:16px;display:block}
+.mg-head i{font-style:normal;font-size:12.5px;color:#9fd8c6;display:block;margin-top:2px}
+.mg-x{background:rgba(255,255,255,.14);color:#eef2f3;border:none;border-radius:999px;width:34px;height:34px;
+  font-size:15px;cursor:pointer;flex:none}
+.mg-canvas{width:100%;height:min(58vh,420px);display:block;background:#7cbf4e;touch-action:none}
+.mg-foot{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;font-size:12.5px;
+  font-family:"IBM Plex Mono",monospace;color:#8496a0;flex:none}
+.mg-score{color:#f4b53f;font-weight:600;white-space:nowrap}
+.mg-fact{text-align:right;opacity:.75}
+.mg-done{position:absolute;inset:0;background:rgba(8,11,15,.93);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:26px;color:#eef2f3}
+.mg-done b{font-size:26px;letter-spacing:-.01em}
+.mg-done p{color:#a8b8c0;font-size:15px;line-height:1.55;margin:12px 0 20px;max-width:44ch}
+.mg-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.mg-btns button{border:none;border-radius:999px;padding:13px 24px;font-weight:700;font-size:15px;
+  cursor:pointer;font-family:inherit}
+.mg-again{background:#f4b53f;color:#241d10}
+.mg-back{background:rgba(56,203,167,.16);color:#38cba7;border:1px solid rgba(56,203,167,.5)!important}
 /* banners */
 #toast{position:fixed;top:calc(64px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
   background:rgba(13,18,24,.85);border:1px solid #38cba7;color:#eef2f3;border-radius:14px;
