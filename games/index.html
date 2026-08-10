@@ -1,4 +1,5 @@
 <!doctype html><html lang="en"><head>
+<meta charset="utf-8">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-P7X10J4LHP"></script>
 <script>
@@ -7,124 +8,194 @@
   gtag('js', new Date());
   gtag('config', 'G-P7X10J4LHP');
 </script>
-
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Buggy Bros — Games</title>
-<meta name="description" content="Little bug games from The Buggy Bros — match mystery bugs, jump like a grasshopper, and more.">
-<meta property="og:title" content="The Buggy Bros — Games">
-<meta property="og:description" content="Little bug games — match mystery bugs, jump like a grasshopper, and more.">
+<title>The Buggy Bros — Games in the meadow</title>
+<meta name="description" content="One 3D meadow with a game hiding at every creature. Each one plays out something real: a grasshopper's 20× leap, a mantis's 50-millisecond strike, a firefly's flash code.">
+<meta property="og:title" content="The Buggy Bros — Games in the meadow">
+<meta property="og:description" content="A game hides at every creature. Walk up and find them.">
 <meta property="og:url" content="https://thebuggybros.com/games/">
 <link rel="canonical" href="https://thebuggybros.com/games/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='31' y='17' width='38' height='14' rx='2' fill='%23f4b53f'/%3E%3Cpath d='M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z' fill='none' stroke='%2338cba7' stroke-width='5'/%3E%3Cellipse cx='50' cy='59' rx='8' ry='10' fill='%2338cba7'/%3E%3Ccircle cx='50' cy='45' r='5' fill='%23f4b53f'/%3E%3C/svg%3E">
+<link rel="icon" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0d1218;--card:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;
+:root{--bg:#080b0f;--panel:#151d25;--ink:#eef2f3;--mut:#8496a0;--line:#26333c;
   --amber:#f4b53f;--teal:#38cba7}
-html,body{background:#080b0f;color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;min-height:100%}
-body{background-image:radial-gradient(70% 40% at 50% 0%, rgba(56,203,167,.10), transparent 60%);
-  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.wrap{max-width:640px;margin:0 auto;padding:20px 20px 60px}
-.brand{display:flex;align-items:center;gap:12px;justify-content:center;padding:8px 0 6px}
-.brand svg{width:38px;height:38px;flex:none}
-.brand b{font-size:22px;font-weight:700;letter-spacing:-.01em}
-.brand b span{color:var(--teal)}
-.kick{font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--teal);text-align:center;margin:14px 0 6px}
-h1{font-size:clamp(34px,9vw,50px);line-height:1.04;font-weight:700;letter-spacing:-.03em;text-align:center}
-h1 em{font-style:normal;color:var(--amber)}
-.lead{font-size:clamp(16px,4.2vw,19px);color:var(--mut);text-align:center;line-height:1.5;margin:14px auto 26px;max-width:430px}
-.games{display:flex;flex-direction:column;gap:16px}
-a.game{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);
-  border-radius:20px;padding:18px;text-decoration:none;color:var(--ink);
-  transition:transform .12s,border-color .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-a.game:hover{transform:translateY(-2px);border-color:#3d505b}
-a.game:active{transform:translateY(0)}
-.game .art{width:84px;height:84px;flex:none;border-radius:16px;background:#0e151b;border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;font-size:44px}
-.game .art.teal{border-color:rgba(56,203,167,.4)}
-.game .art.amber{border-color:rgba(244,181,63,.4)}
-.game .body{flex:1;min-width:0}
-.game .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.game h2{font-size:21px;font-weight:700;letter-spacing:-.01em}
-.tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  padding:3px 8px;border-radius:6px;font-weight:600}
-.tag.live{background:rgba(56,203,167,.16);color:var(--teal)}
-.tag.new{background:rgba(244,181,63,.16);color:var(--amber)}
-.tag.soon{background:var(--line);color:var(--mut)}
-.game p{color:var(--mut);font-size:15.5px;line-height:1.45;margin-top:5px}
-.game .go{flex:none;color:var(--teal);font-size:22px;font-weight:700}
-.game.soon{opacity:.55;pointer-events:none}
-.foot{text-align:center;color:var(--mut);font-size:14px;padding-top:32px;line-height:1.8}
+html,body{background:var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",monospace}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 20px 70px}
+a{color:inherit}
+.brand{display:flex;align-items:center;gap:11px;justify-content:center;padding:6px 0 20px;text-decoration:none}
+.brand svg{width:34px;height:34px}
+.brand b{font-size:20px}.brand b span{color:var(--teal)}
+
+/* ---------- hero: the meadow is the way in ---------- */
+.hero{position:relative;border-radius:26px;overflow:hidden;border:1px solid var(--line);display:block;
+  text-decoration:none;background:#0e151b}
+.hero img.bg{width:100%;aspect-ratio:16/7;object-fit:cover;display:block;transition:transform .5s}
+.hero:hover img.bg{transform:scale(1.03)}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,11,15,.85) 8%,rgba(8,11,15,.35) 58%,transparent)}
+.hero .cap{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(22px,5vw,52px);max-width:640px}
+.hero .kick{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.24em;color:var(--amber);font-weight:600;margin-bottom:9px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);letter-spacing:-.025em;line-height:1.03}
+.hero p{color:#c6d3d0;font-size:clamp(14px,1.6vw,16.5px);line-height:1.5;margin-top:10px;max-width:44ch}
+.hero .go{margin-top:16px;background:var(--amber);color:#241d10;font-weight:700;font-size:15.5px;
+  border-radius:999px;padding:13px 26px;width:max-content}
+
+/* ---------- the creature games ---------- */
+.sect{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:46px 0 6px}
+.sect h2{font-size:clamp(21px,3vw,27px);letter-spacing:-.02em}
+.sect .note{color:var(--mut);font-size:13.5px}
+.lede{color:var(--mut);font-size:15.5px;line-height:1.55;max-width:62ch;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;
+  overflow:hidden;text-decoration:none;display:flex;flex-direction:column;
+  transition:transform .16s,border-color .16s,box-shadow .16s}
+.g:hover{transform:translateY(-3px);border-color:#3f5560;box-shadow:0 12px 34px rgba(0,0,0,.4)}
+.g .art{aspect-ratio:7/5;background:
+  radial-gradient(76% 66% at 50% 38%, rgba(56,203,167,.14), transparent 70%), #101922;
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.g .art img{width:88%;height:88%;object-fit:contain;transition:transform .3s}
+.g:hover .art img{transform:scale(1.07)}
+.g .body{padding:12px 14px 15px;flex:1;display:flex;flex-direction:column}
+.g h3{font-size:15.5px;letter-spacing:-.01em}
+.g .trait{color:var(--mut);font-size:12.7px;line-height:1.42;margin-top:4px;flex:1}
+.g .tag{margin-top:9px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;
+  color:var(--teal);text-transform:uppercase}
+.g .badge{position:absolute;top:10px;right:10px;background:var(--amber);color:#241d10;
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:600;letter-spacing:.12em;
+  padding:3px 8px;border-radius:999px}
+
+/* ---------- other ways to play ---------- */
+.rowcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.rc{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);
+  border-radius:18px;padding:15px;text-decoration:none;transition:transform .14s,border-color .14s}
+.rc:hover{transform:translateY(-2px);border-color:#3f5560}
+.rc .ic{width:66px;height:66px;flex:none;border-radius:14px;background:#101922;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rc .ic img{width:92%;height:92%;object-fit:contain}
+.rc b{font-size:16px;display:block}
+.rc p{color:var(--mut);font-size:13px;line-height:1.4;margin-top:3px}
+.rc .go{margin-left:auto;color:var(--amber);font-size:19px;font-weight:700;flex:none}
+
+.cross{margin-top:40px;padding:20px;border:1px dashed var(--line);border-radius:18px;text-align:center;
+  color:var(--mut);font-size:15px;line-height:1.6}
+.cross a{color:var(--teal);font-weight:700;text-decoration:none}
+.foot{text-align:center;color:var(--mut);font-size:13.5px;padding:34px 0 0;line-height:1.9}
 .foot a{color:var(--teal);text-decoration:none;font-weight:600}
-</style></head>
-<body>
+@media(max-width:860px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .rowcards{grid-template-columns:1fr}
+  .hero img.bg{aspect-ratio:4/3.4}
+  .hero .veil{background:linear-gradient(180deg,rgba(8,11,15,.25) 20%,rgba(8,11,15,.92) 72%)}
+  .hero .cap{justify-content:flex-end;padding-bottom:22px}
+}
+</style></head><body>
 <div class="wrap">
-  <a href="/" style="text-decoration:none;color:inherit"><div class="brand">
-    <svg viewBox="0 0 100 100" aria-hidden="true">
-      <rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/>
+  <a class="brand" href="/">
+    <svg viewBox="0 0 100 100"><rect x="31" y="17" width="38" height="14" rx="2" fill="#f4b53f"/>
       <path d="M34 31 Q34 37 30 43 L30 76 Q30 84 38 84 L62 84 Q70 84 70 76 L70 43 Q66 37 66 31 Z" fill="none" stroke="#38cba7" stroke-width="5"/>
-      <ellipse cx="50" cy="59" rx="8" ry="10" fill="#38cba7"/><circle cx="50" cy="45" r="5" fill="#f4b53f"/>
-    </svg>
+      <ellipse cx="50" cy="59" rx="8" ry="10" fill="#38cba7"/><circle cx="50" cy="45" r="5" fill="#f4b53f"/></svg>
     <b>The Buggy <span>Bros</span></b>
-  </div></a>
+  </a>
 
-  <div class="kick">The arcade</div>
-  <h1>Little <em>bug</em> games</h1>
-  <p class="lead">Quick games starring real bugs — every one sneaks in something true about how they live.</p>
+  <a class="hero" href="/games/meadow/">
+    <img class="bg" src="/games/meadow/hero-meadow.jpg" alt="The 3D meadow">
+    <div class="veil"></div>
+    <div class="cap">
+      <div class="kick mono">START HERE</div>
+      <h1>A game hides at<br>every creature</h1>
+      <p>Walk our 3D meadow and find all 14. Each one you meet unlocks a little game about the thing it's actually famous for.</p>
+      <span class="go">▶ Enter the meadow</span>
+    </div>
+  </a>
 
-  <div class="games">
-    <a class="game" href="/games/meadow/">
-      <div class="art teal">🐞🔍</div>
-      <div class="body">
-        <div class="top"><h2>Meadow Hunt</h2><span class="tag new">New</span></div>
-        <p>Walk the meadow from our theme song in 3D and find all 14 creatures. Get close, look closely — every card tells you something true.</p>
-      </div>
-      <div class="go">→</div>
+  <div class="sect">
+    <h2>Or jump straight to one</h2>
+    <span class="note mono">14 GAMES · EACH ONE TRUE</span>
+  </div>
+  <p class="lede">Every game is built from something real about that creature — the numbers are the actual numbers. Tap any one to drop into the meadow beside it.</p>
+
+  <div class="grid">
+    <a class="g" href="/games/meadow/?play=grasshopper">
+      <div class="art"><img src="/games/art/grasshopper.png" alt=""></div>
+      <div class="body"><h3>Twenty Lengths</h3><div class="trait">Coil and release. A perfect jump lands 20× your own body length.</div><div class="tag mono">Grasshopper</div></div>
     </a>
-
-    <a class="game" href="/play/">
-      <div class="art teal">🐞🤖</div>
-      <div class="body">
-        <div class="top"><h2>The Match Game</h2><span class="tag live">Live</span></div>
-        <p>A real mystery bug, four suspects. Make your pick — then see if you agree with the AI and everyone else.</p>
-      </div>
-      <div class="go">→</div>
+    <a class="g" href="/games/meadow/?play=mantis">
+      <div class="art"><img src="/games/art/mantis.png" alt=""></div>
+      <div class="body"><h3>The Strike</h3><div class="trait">Snap at the fly the instant it's in reach — a mantis takes 50 milliseconds.</div><div class="tag mono">Praying mantis</div></div>
     </a>
-
-    <a class="game" href="/games/hopper/">
-      <div class="art amber">🦗</div>
-      <div class="body">
-        <div class="top"><h2>Hopper</h2><span class="tag new">New</span></div>
-        <p>Hold to crouch, release to LEAP. Real grasshoppers jump 20× their body length — can you?</p>
-      </div>
-      <div class="go">→</div>
+    <a class="g" href="/games/meadow/?play=firefly">
+      <div class="art"><img src="/games/art/firefly.png" alt=""></div>
+      <div class="body"><h3>Flash Back</h3><div class="trait">Repeat the flash pattern. Every species has its own code.</div><div class="tag mono">Lightning bug</div></div>
     </a>
-
-    <a class="game soon" href="#">
-      <div class="art">🐜</div>
-      <div class="body">
-        <div class="top"><h2>Bug Muncher</h2><span class="tag soon">Coming soon</span></div>
-        <p>A maze, a hungry beetle, and a hunting spider. Eat the aphids. Don't get eaten.</p>
-      </div>
-      <div class="go">→</div>
+    <a class="g" href="/games/meadow/?play=dragonfly">
+      <div class="art"><img src="/games/art/dragonfly.png" alt=""></div>
+      <div class="body"><h3>Ace Hunter</h3><div class="trait">Chase a jinking midge. Real dragonflies land 95% of their chases.</div><div class="tag mono">Dragonfly</div></div>
     </a>
-
-    <a class="game soon" href="#">
-      <div class="art">✏️</div>
-      <div class="body">
-        <div class="top"><h2>Field Sketch</h2><span class="tag soon">Coming soon</span></div>
-        <p>Draw the bug from the photo, like a real field naturalist. Save your sketch to the notebook.</p>
-      </div>
-      <div class="go">→</div>
+    <a class="g" href="/games/meadow/?play=spider">
+      <div class="art"><img src="/games/art/spider.png" alt=""></div>
+      <div class="body"><h3>Spin the Web</h3><div class="trait">Trace the spiral without breaking the silk — then it eats it and rebuilds.</div><div class="tag mono">Orb weaver</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=ladybug">
+      <div class="art"><img src="/games/art/ladybug.png" alt=""></div>
+      <div class="body"><h3>Aphid Feast</h3><div class="trait">Eat as many as you can. A ladybug manages 5,000 in a lifetime.</div><div class="tag mono">Ladybug</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=ant">
+      <div class="art"><img src="/games/art/ant.png" alt=""></div>
+      <div class="body"><h3>Heavy Lifter</h3><div class="trait">Haul a crumb that keeps getting heavier. Ants carry 50× their weight.</div><div class="tag mono">Ant</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=bee">
+      <div class="art"><img src="/games/art/bee.png" alt=""></div>
+      <div class="body"><h3>Buzz the Pollen</h3><div class="trait">Hold to buzz it loose — a trick honeybees can't do.</div><div class="tag mono">Bumblebee</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=pillbug">
+      <div class="art"><img src="/games/art/pillbug.png" alt=""></div>
+      <div class="body"><h3>Roll Up</h3><div class="trait">Curl into armor at the right moment. It's a crustacean, not an insect.</div><div class="tag mono">Pill bug</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=caterpillar">
+      <div class="art"><img src="/games/art/caterpillar.png" alt=""></div>
+      <div class="body"><h3>Eat 100×</h3><div class="trait">Inch along and eat everything. They grow 100× before transforming.</div><div class="tag mono">Caterpillar</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=butterfly">
+      <div class="art"><img src="/games/art/butterfly.png" alt=""></div>
+      <div class="body"><h3>Taste With Your Feet</h3><div class="trait">Land to taste each leaf and find the milkweed. That's really how they check.</div><div class="tag mono">Monarch</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=cricket">
+      <div class="art"><img src="/games/art/cricket.png" alt=""></div>
+      <div class="body"><h3>Chirp in Time</h3><div class="trait">Keep the beat by rubbing your wings. Crickets hear through their knees.</div><div class="tag mono">Field cricket</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=beetle">
+      <div class="art"><img src="/games/art/beetle.png" alt=""></div>
+      <div class="body"><h3>One in Four</h3><div class="trait">Sort beetles from everything else. A quarter of all animals are beetles.</div><div class="tag mono">Ground beetle</div></div>
+    </a>
+    <a class="g" href="/games/meadow/?play=longlegs">
+      <div class="art"><img src="/games/art/longlegs.png" alt=""></div>
+      <div class="body"><h3>Long Legs</h3><div class="trait">Step left, right, left across the grass. No venom, no silk, not a spider.</div><div class="tag mono">Daddy longlegs</div></div>
     </a>
   </div>
 
+  <div class="sect"><h2>Two more ways to play</h2></div>
+  <div class="rowcards">
+    <a class="rc" href="/games/hopper/">
+      <div class="ic"><img src="/games/art/grasshopper.png" alt=""></div>
+      <div><b>Hopper</b><p>The original side-scroller — time your leaps through the tall grass.</p></div>
+      <span class="go">→</span>
+    </a>
+    <a class="rc" href="/play/">
+      <div class="ic"><img src="/games/art/scarab.png" alt=""></div>
+      <div><b>The Match Game</b><p>A real mystery catch, four suspects. Can you ID it?</p></div>
+      <span class="go">→</span>
+    </a>
+  </div>
+
+  <div class="cross">There's one more creature in the meadow that isn't on this list.<br>
+    Find all 14 and it turns up on the big stone. <a href="/games/meadow/">Go looking →</a></div>
+
   <div class="foot">
-    <a href="/">← the field cards</a> · <a href="https://instagram.com/thebuggybros" target="_blank" rel="noopener">@thebuggybros</a><br>
-    Got a game idea? Send it to us.
+    <a href="/">Home</a> · <a href="/field-guide.html">The field guide</a> · <a href="https://instagram.com/thebuggybros">@thebuggybros</a>
   </div>
 </div>
 </body></html>
