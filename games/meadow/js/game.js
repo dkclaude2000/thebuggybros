@@ -673,7 +673,26 @@ function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
-  if (!running) { renderer.render(scene, camera); return; }
+  if (!running) {
+    // attract shot: drift around the clearing so the start screen looks like the game
+    const a = now * 0.00008;
+    camera.position.set(Math.sin(a) * 7.5, 3.4, Math.cos(a) * 7.5);
+    camera.lookAt(0, 0.7, 0);
+    camera.fov = 52; camera.updateProjectionMatrix();
+    const at = now / 1000;
+    for (const c of CREATURES) { try { BEHAVE[c.key](actors[c.key], at, null); } catch (e) {} }
+    for (const sg of SIGNS) {
+      const m = signMeshes[sg.key];
+      m.rotation.y = Math.atan2(camera.position.x - sg.x, camera.position.z - sg.z);
+    }
+    player.reset(); buddy.reset();
+    player.root.position.set(0.6, 0, 2.6); player.root.rotation.y = Math.PI;
+    buddy.root.position.set(-0.5, 0, 3.2); buddy.root.rotation.y = Math.PI;
+    player.idle(at); buddy.idle(at + 0.7);
+    W.updateMotes(motes, at);
+    renderer.render(scene, camera);
+    return;
+  }
   clockT += dt;
   const t = clockT;
 
