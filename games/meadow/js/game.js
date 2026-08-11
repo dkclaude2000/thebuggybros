@@ -527,6 +527,15 @@ cardWrap.addEventListener('click', (e) => { if (e.target === cardWrap) closeCard
 let AC = null;
 const song = new Audio('./song.mp3');
 song.preload = 'auto';
+function unlockAudio() {
+  if (AC) return;
+  try {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    song.load();
+  } catch (e) {}
+}
+addEventListener('pointerdown', unlockAudio, { once: true });
+addEventListener('keydown', unlockAudio, { once: true });
 function chime(rare = false) {
   if (!AC) return;
   const notes = rare ? [523, 659, 784, 1047, 1319] : [659, 880, 1109];
@@ -858,30 +867,30 @@ addEventListener('resize', () => {
 document.getElementById('startHint').textContent = IS_TOUCH
   ? 'Left side: walk. Right side: look around. Tap the button when something looks interesting.'
   : 'WASD/arrows: walk · click-drag: look around · Space: jump · double-Space: fly · E: look closer';
-if (found.size > 0 && found.size < CREATURES.length) {
+if (document.getElementById('startBtn') && found.size > 0 && found.size < CREATURES.length) {
   document.getElementById('startBtn').textContent = `Keep exploring — ${found.size}/${CREATURES.length} found`;
-} else if (found.size === CREATURES.length) {
+} else if (document.getElementById('startBtn') && found.size === CREATURES.length) {
   document.getElementById('startBtn').textContent = 'Return to the meadow';
 }
 const DEEP = new URLSearchParams(location.search).get('play');
 if (DEEP && MINIGAME_KEYS.includes(DEEP)) {
-  const c = CREATURES.find(x => x.key === DEEP);
-  const b = document.getElementById('startBtn');
-  if (c) b.textContent = `▶ Play ${c.emoji} ${c.name.toLowerCase()}`;
-}
-document.getElementById('startBtn').addEventListener('click', () => {
-  document.getElementById('startOverlay').remove();
-  AC = new (window.AudioContext || window.webkitAudioContext)();
-  song.load(); // unlock audio on the user gesture
-  running = true;
-  if (DEEP && MINIGAME_KEYS.includes(DEEP)) {
-    const home = HOME[DEEP];
-    if (home) { player.root.position.set(home[0] + 1.2, 0, home[1] + 1.2); }
-    if (!found.has(DEEP)) { found.add(DEEP); saveFound(); document.getElementById('tk-' + DEEP)?.classList.add('on'); }
-    playCreatureGame(DEEP);
-  } else {
-    toast('The meadow is full of tiny neighbors. Go say hello 🐞', 4200);
+  // came from a game tile — go straight into that game, no start gate
+  document.getElementById('startOverlay')?.remove();
+  const home = HOME[DEEP];
+  if (home) player.root.position.set(home[0] + 1.2, 0, home[1] + 1.2);
+  if (!found.has(DEEP)) {
+    found.add(DEEP); saveFound();
+    document.getElementById('tk-' + DEEP)?.classList.add('on');
   }
+  running = true;
+  last = performance.now();
+  playCreatureGame(DEEP);
+}
+document.getElementById('startBtn')?.addEventListener('click', () => {
+  document.getElementById('startOverlay')?.remove();
+  unlockAudio();
+  running = true;
+  toast('The meadow is full of tiny neighbors. Go say hello 🐞', 4200);
 });
 
 // test/debug handle (harmless in production)
